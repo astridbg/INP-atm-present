@@ -9,7 +9,6 @@ plt.rcParams['mathtext.fontset'] = 'stix'
 plt.rcParams['font.family'] = 'STIXGeneral'
 plt.rcParams.update({'font.size':20})
 # ------------------------------------------------
-import cartopy.crs as ccrs
 import datetime
 from functions import *
 
