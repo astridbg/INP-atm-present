@@ -36,8 +36,8 @@ variables = ["SWCF","LWCF","SWCFS","LWCFS","CLDTOT","CLDHGH","CLDMED","CLDLOW","
 #------------------------------
 
 NYA = [78.9227, 11.9273] # Ny-Ålesund
-ALE = [82.5, 62.3] # Alert
-BAR = [71.17, 156.47] # Barrow
+ALE = [82.5, 297.6] # Alert
+BAR = [71.17, 203.55] # Barrow
 npole = [[0,360],[85,90]] # North Pole
 
 """
