@@ -15,8 +15,6 @@ casefolder="NF2000climo_f19_tn14_"+case
 all_files = glob.glob(rpath+casefolder+"/atm/hist/"+casefolder+".cam.h0.*")
 all_files.sort()
 print("Files found")
-print(all_files)
-quit()
 
 ds = xr.open_mfdataset(all_files)
 print("Dataset created")
@@ -47,7 +45,8 @@ date = "2007-04-15_2010-03-15"
 # For case def
 #variables = ["AWNI", "FREQI","CLDICE","SWCF","LWCF","LWCFS","SWCFS","NETCFS","AWNICC","TH","CLDTOT","CLDHGH","CLDMED","CLDLOW","TGCLDIWP","TGCLDLWP","TREFHT"]
 
-variables = ["FSNT","FSNTC","FSNTOA","FSNTOAC","FSUTOA", "FLNT", "FLNTC", "FLUT", "FLUTC"]
+#variables = ["FSNT","FSNTC","FSNTOA","FSNTOAC","FSUTOA", "FLNT", "FLNTC", "FLUT", "FLUTC"]
+variables = ["ICEFRAC"]
 
 for var in variables:
     print("Started writing variable:")
