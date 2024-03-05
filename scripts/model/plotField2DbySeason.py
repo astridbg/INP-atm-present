@@ -26,7 +26,7 @@ date = "2007-04-15_2010-03-15"
 #------------------------------
 
 variables = ["SWCF","LWCF","SWCFS","LWCFS","NETCFS","CLDTOT","CLDHGH","CLDMED","CLDLOW","TGCLDIWP","TGCLDLWP","TREFHT"]
-variables = ["CLDLWEMS"]
+variables = ["LWCF"]
 
 #------------------------------
 # Shaping and plotting fields
@@ -34,13 +34,14 @@ variables = ["CLDLWEMS"]
 for var in variables:
     print(var)
     ds = xr.open_dataset(rpath+var+"_"+case+"_"+date+".nc")
-	
+    ice_edge = xr.open_dataset(rpath+"PI_EDGE_andenes21_20220222_byseason.nc")
+
     # Get start and end date of period
     date_start = str(ds.time[0].values).split(" ")[0]  
     date_end = str(ds.time[-1].values).split(" ")[0]
 
     # Group cases by season and mean over the period by season
-    ds_seas = ds.groupby("time.season").mean("time")  
+    ds_seas = ds.groupby("time.season").mean("time")
 
     lev_extent = round(np.max(ds_seas[var].sel(lat=slice(66.5,90)).values),10)
     print(lev_extent)
@@ -66,6 +67,8 @@ for var in variables:
                                            cmap=plt.cm.get_cmap("Reds"),#cmap=plt.cm.get_cmap('Blues').reversed() 
                                            levels=levels,
                                            add_colorbar=False)
+
+        ax.plot(ice_edge.lon, ice_edge["ice_edge_lat"].sel(season=season).values, transform=ccrs.PlateCarree(), color="yellow")
         ax.set_title(season, fontsize=22)
         ax.coastlines()
 
@@ -86,5 +89,6 @@ for var in variables:
         cbar.ax.xaxis.set_major_formatter(StrMethodFormatter('{x:,.3f}')) # Three decimal places
     
     plt.savefig(wpath+"pdf/"+var+"_byseason_"+case+".pdf", bbox_inches='tight')
-	
+    plt.savefig(wpath+"png/"+var+"_byseason_"+case+".png", bbox_inches='tight')
+
     plt.clf()
