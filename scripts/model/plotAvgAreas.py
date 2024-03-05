@@ -21,15 +21,14 @@ wpath="/projects/NS9600K/astridbg/INP-atm-present/figures/model/"
 # Squares to plot
 #------------------------------
 
-# square = [[lon_min, lon_max],[lat_min,lat_max]]
-
-svalbard = [[9,28],[75,81]] # Svalbard
-quttinirpaaq = [[-120,-60],[78,86]] # Quttinirpaaq
-greenland = [[-57,-22],[70,80]] # Greenland
-npole = [[0,360],[85,90]] # North Pole
+# square = [lat, lon]
 
 
-squares = [svalbard,quttinirpaaq,greenland,npole]
+NYA = [78.63, 12.5] # Ny-Ålesund
+ALE = [82.42, -62.5] # Alert
+BAR = [71.05, -157.5] # Utqiavik/Barrow
+
+coords = [NYA,ALE,BAR]
 
 #------------------------------
 # Plotting Arctic area
@@ -64,22 +63,21 @@ r_ortho = compute_radius(proj,r)
 ax.add_patch(mpatches.Circle(xy=[lon, lat], radius=r_ortho, facecolor=None, fill=False,edgecolor='red',transform=proj,lw=2,zorder=2))
 
 
-# Add squares to average over
+# Add circle for the North Pole
 
-for square in squares:
-    if square == npole:
-        lat = 90
-        lon = 0
-        r = 5
-        
-        r_ortho = compute_radius(proj,r)
+lat = 90
+lon = 0
+r = 5
 
-        ax.add_patch(mpatches.Circle(xy=[lon, lat], radius=r_ortho, facecolor=None, fill=False,edgecolor='red',transform=proj,lw=2,zorder=2))
-    else:
-        lons = square[0]
-        lats = square[1]
-        LONS = [lons[0], lons[0], lons[1], lons[1]]
-        LATS = [lats[0], lats[1], lats[1], lats[0]]
+r_ortho = compute_radius(proj,r)
+
+ax.add_patch(mpatches.Circle(xy=[lon, lat], radius=r_ortho, facecolor=None, fill=False,edgecolor='red',transform=proj,lw=2,zorder=2))
+
+for coord in coords:
+        lat = coord[0]; lat_buffer=0.95
+        lon = coord[1]; lon_buffer=1.25
+        LONS = [lon-lon_buffer, lon-lon_buffer, lon+lon_buffer, lon+lon_buffer]
+        LATS = [lat-lat_buffer, lat+lat_buffer, lat+lat_buffer, lat-lat_buffer]
         ring = LinearRing(list(zip(LONS, LATS)))
         ax.add_geometries([ring], ccrs.PlateCarree(), facecolor='none', edgecolor='red', lw=2, zorder=2)
 	
