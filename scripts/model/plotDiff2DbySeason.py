@@ -13,14 +13,14 @@ import cartopy.crs as ccrs
 import functions
 
 rpath="/projects/NS9600K/astridbg/data/model/noresm_postprocessed/"
-wpath="/projects/NS9600K/astridbg/master/figures/model/diff_byseason/"
+wpath="/projects/NS9600K/astridbg/INP-atm-present/figures/model/diff_byseason/"
 
 # Default cases----------------
 #case1 = "def_20210126"; case1nm = "CAM6"
-case1 = "meyers92_20220210"; case1nm = "CAM5"
+case1 = "meyers92_20220210"; case1nm = "M92"
 # Modified cases---------------
-#case2 = "meyers92_20220210"; case2nm = "CAM5"
-case2 = "andenes21_20220222"; case2nm = "Andenes 2021"
+#case2 = "meyers92_20220210"; case2nm = "M92"
+case2 = "andenes21_20220222"; case2nm = "A21"
 #------------------------------	
 date1 = "2007-04-15_2010-03-15"
 date2 = "2007-04-15_2010-03-15"
@@ -61,7 +61,7 @@ for var in variables:
 
 
     fig = plt.figure(1, figsize=[9,10],dpi=300)
-    title = ds1[var].long_name+"\n"+case2nm+"-"+case1nm
+    title = ds1[var].long_name+"\n"+case2nm+r"$-$"+case1nm
     fig.suptitle(title, fontsize=22)
 	
     # Set the projection to use for plotting
@@ -98,7 +98,7 @@ for var in variables:
     elif 0.004 <= lev_extent < 0.04:
         cbar.ax.xaxis.set_major_formatter(StrMethodFormatter('{x:,.3f}')) # Three decimal places
     
-    plt.savefig(wpath+var+"_"+case1+"_"+case2+"_eqbar.pdf", bbox_inches='tight')
-    plt.savefig(wpath+var+"_"+case1+"_"+case2+"_eqbar.png", bbox_inches='tight')
+    plt.savefig(wpath+"pdf/"+var+"_"+case1+"_"+case2+"_eqbar.pdf", bbox_inches='tight')
+    plt.savefig(wpath+"png/"+var+"_"+case1+"_"+case2+"_eqbar.png", bbox_inches='tight')
 
     plt.clf()

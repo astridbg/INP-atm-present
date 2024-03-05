@@ -13,14 +13,14 @@ import cartopy.crs as ccrs
 import functions
 
 rpath="/projects/NS9600K/astridbg/data/model/noresm_postprocessed/"
-wpath="/projects/NS9600K/astridbg/master/figures/model/diff_byseason/"
+wpath="/projects/NS9600K/astridbg/INP-atm-present/figures/model/diff_byseason/"
 
 # Default cases----------------
 #case1 = "def_20210126"; case1nm = "CAM6"
-case1 = "meyers92_20220210"; case1nm = "CAM5"
+case1 = "meyers92_20220210"; case1nm = "M92"
 # Modified cases---------------
 #case2 = "meyers92_20220210"; case2nm = "CAM5"
-case2 = "andenes21_20220222"; case2nm = "Andenes 2021"
+case2 = "andenes21_20220222"; case2nm = "A21"
 #------------------------------	
 date1 = "2007-04-15_2010-03-15"
 date2 = "2007-04-15_2010-03-15"
@@ -66,8 +66,8 @@ for var,xlim in zip(variables,xlims):
     for ax, season in zip(axs.flatten(),["DJF", "MAM","JJA","SON"]):
         
         if season == "DJF":
-            ax.plot(ds1_arct.sel(season=season), levels, label="CAM5",ls="--")
-            ax.plot(ds2_arct.sel(season=season), levels, label="Andenes 2021")
+            ax.plot(ds1_arct.sel(season=season), levels, label=case1nm,ls="--")
+            ax.plot(ds2_arct.sel(season=season), levels, label=case2nm)
             ax.set_ylabel("hPa")
             ax.invert_yaxis()
         else:
@@ -79,6 +79,7 @@ for var,xlim in zip(variables,xlims):
         ax.set_xlabel(ds1[var].units)
         ax.grid(alpha=0.5)
     fig.legend(loc="lower center", bbox_to_anchor=(0.5, -0.13),ncol=2)
+    
     plt.savefig(wpath+var+"_heightdiff_arctic_"+case1+"_"+case2+".pdf",bbox_inches="tight")
     plt.clf()	
 

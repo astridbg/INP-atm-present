@@ -13,12 +13,12 @@ import cartopy.crs as ccrs
 import functions
 
 rpath="/projects/NS9600K/astridbg/data/model/noresm_postprocessed/"
-wpath="/projects/NS9600K/astridbg/master/figures/model/spatial/"
+wpath="/projects/NS9600K/astridbg/INP-atm-present/figures/model/spatial/"
 
 # Case ------------------------
 #case = "def_20210126"; casenm = "CAM6"
-#case = "meyers92_20220210"; casenm = "CAM5"
-case = "andenes21_20220222"; casenm = "Andenes 2021"
+#case = "meyers92_20220210"; casenm = "M92"
+case = "andenes21_20220222"; casenm = "A21"
 #------------------------------	
 date = "2007-04-15_2010-03-15"
 #------------------------------
@@ -85,6 +85,6 @@ for var in variables:
     elif 0.004 <= lev_extent < 0.04:
         cbar.ax.xaxis.set_major_formatter(StrMethodFormatter('{x:,.3f}')) # Three decimal places
     
-    plt.savefig(wpath+var+"_byseason_"+case+".pdf", bbox_inches='tight')
+    plt.savefig(wpath+"pdf/"+var+"_byseason_"+case+".pdf", bbox_inches='tight')
 	
     plt.clf()

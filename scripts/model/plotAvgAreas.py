@@ -15,7 +15,7 @@ from shapely.geometry.polygon import LinearRing
 import matplotlib.patches as mpatches
 import functions
 
-wpath="/projects/NS9600K/astridbg/master/figures/model/"
+wpath="/projects/NS9600K/astridbg/INP-atm-present/figures/model/"
 
 #------------------------------
 # Squares to plot
@@ -81,7 +81,7 @@ for square in squares:
         LONS = [lons[0], lons[0], lons[1], lons[1]]
         LATS = [lats[0], lats[1], lats[1], lats[0]]
         ring = LinearRing(list(zip(LONS, LATS)))
-        ax.add_geometries([ring], ccrs.PlateCarree(), facecolor='none', edgecolor='red', lw=2,zorder=2)
+        ax.add_geometries([ring], ccrs.PlateCarree(), facecolor='none', edgecolor='red', lw=2, zorder=2)
 	
 plt.savefig(wpath+"avgareas.pdf",bbox_inches="tight")
 plt.savefig(wpath+"avgareas.png",bbox_inches="tight")
