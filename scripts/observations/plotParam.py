@@ -12,7 +12,7 @@ import functions
 path = "/projects/NS9600K/astridbg/data/observations/Coriolis_postprocessed/"
 fname1 = "Coriolis_nucleiT_cal.csv"
 fname2 = "Coriolis_nucleiOut_std.csv"
-wpath = "/projects/NS9600K/astridbg/master/figures/observations/"
+wpath = "/projects/NS9600K/astridbg/INP-atm-present/figures/observations/"
 
 
 nucleiT = pd.read_csv(path+fname1, index_col=0)
@@ -60,34 +60,48 @@ print("Without outlier:")
 print(slope_ex)
 print(intercept_ex)
 print(functions.rsquared(X_ex,np.log(Y_ex)))
-slope_L_W = -0.332
-intercept_L_W = -10.034
+
+#-------------------------------
+# Other parameterizations
+#-------------------------------
+# Li and Wieder
+slope_L_W = -0.3504
+intercept_L_W = -10.1826
+
+# Sze
 
 plt.figure(figsize=(8,6),dpi=300)
-plt.title("INP concentrations at Andenes 15.03$-$30.03 2021",fontsize=22)
+#plt.title("INP concentrations at Andenes 15.03$-$30.03 2021",fontsize=22)
 plt.grid(alpha=0.5)
 alpha=1
 
-for i in range(nCor):
-    if i == outlier_sample:
-        plt.scatter(nucleiT.iloc[:,i],nucleiOut.iloc[:,i], alpha = alpha, color="none", edgecolor="mediumseagreen")#, label="Outlier")
-    elif i == 0:
-        plt.scatter(nucleiT.iloc[:,i],nucleiOut.iloc[:,i], alpha = alpha, color="none", edgecolor="cornflowerblue")#, label="Other values")
-    else:
-        plt.scatter(nucleiT.iloc[:,i],nucleiOut.iloc[:,i], alpha = alpha, color="none", edgecolor="cornflowerblue")
+# Plot excluding outlier sample
+for i in range(0, outlier_sample):
+    plt.scatter(nucleiT.iloc[:,i],nucleiOut.iloc[:,i], alpha = alpha, color="none", edgecolor="cornflowerblue")
+    alpha -= 0.01
+for i in range(outlier_sample+1, nCor):
+    plt.scatter(nucleiT.iloc[:,i],nucleiOut.iloc[:,i], alpha = alpha, color="none", edgecolor="cornflowerblue")
     alpha -= 0.01
 
 plt.yscale("log")
 plt.ylim(10**(-4.3),10**(1.8))
 plt.xlim(-30,-2)
 x = np.linspace(-30,-2,100)
-plt.plot(x, np.exp(intercept + slope*x), linewidth=2, color="orange",
-        label="With outlier: exp("+str(round(intercept,3))+" - "+str(round(np.sign(slope)*slope,3))+r"$\times T$)")
-plt.plot(x, np.exp(intercept_ex + slope_ex*x), linewidth=2, color="black",
-        label="Without outlier: exp("+str(round(intercept_ex,3))+" - "+str(round(np.sign(slope_ex)*slope_ex,3))+r"$\times T$)")
-#plt.plot(x, np.exp(intercept_L_W + slope_L_W*x),linewidth=2,linestyle="dashdot",color="darkblue",
-#        label="Li and Wieder et.al.")
-#plt.plot(x, meyers(x), linewidth=2, color="red",label="Meyers (1992)",linestyle="dotted")
+# Plot parameterization without outlier 
+plt.plot(x, np.exp(intercept_ex + slope_ex*x), linewidth=4, color="orange",
+        label="exp("+str(round(intercept_ex,3))+" - "+str(round(np.sign(slope_ex)*slope_ex,3))+r"$\times T$)")
+# Plot Meyers
+plt.plot(x, meyers(x), linewidth=3, color="red",label="Meyers et al. (1992)",linestyle="dotted")
+# Plot Li and Wieder, with extra one to move legend name
+plt.plot(x, np.exp(intercept_L_W + slope_L_W*x),linewidth=3,linestyle="dashdot",color="#ffffff",
+        label=" ")
+plt.plot(x, np.exp(intercept_L_W + slope_L_W*x),linewidth=3,linestyle="dashdot",color="darkblue",
+        label="Li et al. (2023), Ny-Ålesund")
+# Plot Sze study, winter and summer
+plt.plot(x, 2.111*10**(-4)*np.exp(-0.263*x),linewidth=3,linestyle="dashed",color="tab:green",
+        label="Sze et al. (2023), Greenland summer")
+plt.plot(x, 4.711*10**(-7)*np.exp(-0.492*x),linewidth=3,linestyle="dashed",color="darkviolet",
+        label="Sze et al. (2023), Greenland winter")
 plt.xlabel(r"Temperature $T$ [$^{\circ}$C]")
 plt.ylabel(r"INP concentration [#/L$_{std}$]")
 
@@ -98,8 +112,8 @@ ax.set_position([box.x0, box.y0 + box.height * 0.1,
                  box.width, box.height * 0.9])
 
 # Put a legend below current axis
-#ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=2)#,borderpad=0.3, columnspacing=0.3, handletextpad=0.2)
+ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=2)#,borderpad=0.3, columnspacing=0.3, handletextpad=0.2)
 
-plt.savefig(wpath+"INPconc_param.pdf",bbox_inches="tight")
-plt.savefig(wpath+"INPconc_param_param.png",bbox_inches="tight")
+plt.savefig(wpath+"pdf/INPconc_param.pdf",bbox_inches="tight")
+plt.savefig(wpath+"png/INPconc_param.png",bbox_inches="tight")
 
