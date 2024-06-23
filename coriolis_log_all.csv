@@ -1,0 +1,62 @@
+,,,,,,,,,,,,,,,,,,,Analysis Log,,
+Sample ID,Date,Start (UTC),End (UTC),Time span (min),Volume End (mL),"Flow rate
+(L/min)","Inlet Temp Start
+(C)","Inlet Temp End
+(C)","MetOne Start
+(# at 0.5um)","MetOne End
+(# at 0.5um)","Sigma water
+(installation)",Type,taken by,Comment (Sampling),Purpose of Sampling,"dO18
+(permil)","dD
+(permil)",Air mass origin,Time (Analysis),run by,Comment (Analysis)
+1,15-03-2021,22:00,22:40,40,16,300,15.5,14.9,1615,1600,# 1 (13 March),air,Rob,pump rate: 0.8 ml/min,"new airmass expected overnight, 1 sample before",,,,22:45,Rob,smooth
+2,16-03-2021,10:02,10:42,40,16,300,16.0,15.0,4623,4500,# 1 (13 March),air,Astrid,pump rate: 0.8 ml/min,"new airmass overnight, 1 sample after",,,,10:57,Astrid,smooth
+3,16-03-2021,14:57,15:37,40,18,300,14.6,12.8,2020,1573,# 1 (13 March),air,Rob,pump rate: 0.8 ml/min,during snowfall event,,,,17:10,Rob,smooth
+4,16-03-2021,22:02,22:42,40,16,300,13.5,13.4,1641,1592,# 1 (13 March),air,Astrid,pump rate: 0.8 ml/min,"routine measurement, surface air from NYA, upper air from Greenland",,,,23:14,Rob,smooth
+5,17-03-2021,10:29,11:09,40,16,300,13.7,12.5,1973,2130,# 1 (13 March),air,Rob,pump rate: 0.8 ml/min,"routine measurement, forecasted low d-excess increasing towards the day",-27,-120,,11:14,Rob,smooth
+6,17-03-2021,22:01,22:41,40,17,300,12.7,12.6,1993,1960,# 1 (13 March),air,Tim,pump rate: 0.8 ml/min,"routine measurement, forecasted low d-excess increasing towards the day - after",-28.5,-118,,21:05,Alena,smooth
+7,18-03-2021,6:12,6:52,40,17,300,12.2,12.1,1880,1770,# 1 (13 March),air,Rob,pump rate: 0.8 ml/min,"strong inversion, and cold, local air mass?",-27,-121,,8:55,Rob,smooth
+8,18-03-2021,16:53,17:33,40,15,300,13.6,12.4,2000,2040,# 1 (13 March),air,Rob,pump rate: 0.7 ml/min,pre storm background b4 Stg WAA,-28.4,-127.1,,,,
+9,19-03-2021,1:07,1:47,40,13,300,14.0,13.4,1703,1786,# 1 (13 March),air,Tim,pump rate: 0.7 ml/min,"Forecasted peak d-excess time, storms coming, lots of blowing snow (potentially entering inlet)",-30,-138,West (Greenland - Iceland),,,
+10,19-03-2021,4:04,4:44,40,16,300,12.5,12.0,1576,1500,# 1 (13 March),air,Astrid,pump rate: 0.7 ml/min,"Isotopes decreased a lot, currently snowfall, projected to die down soon",-29.1,-156.4,West (Greenland - Iceland),,,
+11,19-03-2021,12:10,12:50,40,16,300,19.0,17.9,5200,7443,# 1 (13 March),air,Rob,pump rate: 0.7 ml/min,"wanted to sample minimum in d-excess, currently on the rise at sample though (insane winds and violet sea, lots of sea spray, large aerosol likely sea spray as ground is snow covered/wet)",-23,-115,West (Greenland - Iceland),,,
+12,19-03-2021,21:32,22:12,40,15,300,18.0,17.5,17000,10821,# 1 (13 March),air,Tim,pump rate: 0.7 ml/min,"sample for the night, light rain and very dirty, hopefully catch isotopes on ther way up before plateaua tomorrw",-22,-102,West (Greenland - Iceland),22:15,Rob,smooth
+13,20-03-2021,7:22,8:02,40,15,300,17.2,16.4,7000,7169,# 1 (13 March),air,Tim,pump rate: 0.7 ml/min,"Expected wind change coming, maybe missed it, but hopefully in between approaching low and upcoming CAO.",-23.5,-108,West (Greenland - Iceland); CAO,,,
+14,20-03-2021,11:15,11:55,40,15,300,16.2,15.2,4640,4686,# 1 (13 March),air,Astrid,pump rate: 0.7 ml/min,"Expected change of airmasses coming, hopefully sampled right before transition",-28.5,-155,West (Greenland - Iceland),12:01,Astrid,
+15,20-03-2021,13:14,13:54,40,16,300,16.2,15.1,120,3870,# 1 (13 March),air,Rob,pump rate: 0.7 ml/min,"super clean, minumum in pressure expected, likely experiencing airmass transition now, wid shift to NW, increasingly dirty during sample.",-27.8,-154,NW (Greenland - Svalbard),,,brushed analysis tray with arm...
+16,20-03-2021,18:18,18:58,40,15,300,17.7,15.0,5400,5128,# 1 (13 March),air,Astrid,pump rate: 0.7 ml/min,"Cold air is arriving, probe start of CAO to see how INP change throughout event.",-26.5,-126.3,NW (Greenland - Svalbard),,,
+17,20-03-2021,21:52,22:32,40,17,300,15.8,15.0,6617,6566,# 1 (13 March),air,Tim,pump rate: 0.8 ml/min,"CAO has arived and is under way, see if INP change after during event or if sea surface keeps them constant",-26,-120.2,NW (Greenland - Svalbard),,,
+18,21-03-2021,8:24,9:04,40,18,300,14.0,13.0,3341,5863,# 1 (13 March),air,Rob,pump rate: 0.8 ml/min,"Measuring in the heart of the CAO, scattered convective cells with graupel. classic CAO",-26,-116,WNW (Greenland); CAO,,,
+19,21-03-2021,18:52,19:32,40,17,300,13.7,13.1,2900,2888,#2 (21 March),air,Rob,pump rate: 0.8 ml/min,"Washed cone #3, d_excess predicted to approach maximum now (hopefully sampling close to end of COA)",-23.3,-93.6,WNW (Greenland); CAO,,,
+20,22-03-2021,6:55,7:35,40,17.5,300,15.4,15.1,1344,1803,#2 (21 March),air,Tim,pump rate: 0.8 ml/min,"Washed cone #1, Britta just saw Iceland volcano aerosol lidar at 1.5 km, according to forecast 500m is coming down to surface ",-26.2,-120,West (Greenland - Iceland),,,
+21,22-03-2021,12:02,12:42,40,16,300,16.6,17.0,610,546,#2 (21 March),air,Tim,pump rate: 0.7 ml/min,"Washed cone # 4, during warm front passage",-26.4,-137,West (Greenland - Iceland),,,
+22,22-03-2021,22:21,23:01,40,16,300,19.3,18.6,790,604,#2 (21 March),air,Tim,pump rate: 0.7 ml/min,"Washed cone #2, peak of warm front (WAA) before transitioning to CAA from SW",-24,-124,SW (Iceland - UK),,,"not analysed right away, waited for next day"
+23,23-03-2021,10:30,11:10,40,15,300,18.2,18.0,10443,13440,#2 (21 March),air,Rob,pump rate: 0.7 ml/min,potential CAO from W-SW,-23.3,-109.8,WSW (Iceland); CAO; L S of Svalbard,,,
+24,23-03-2021,19:31,20:11,40,15,300,18.0,17.4,8541,6771,#2 (21 March),air,Rob,pump rate: 0.7 ml/min,"before storm passage, d-excess maximum forecasted",-22.5,-102,SW (Iceland - UK); CAO; L SE of Svalbard,,,
+25,23-03-2021,23:05,23:45,40,16,300,16.7,15.8,420,760,#2 (21 March),air,Astrid,pump rate: 0.7 ml/min,sampled before approaching Storm 2,-26.5,-136,SW (Iceland - UK); CAO; L SE of Svalbard,,,"not analysed right away, waited for next day"
+26,24-03-2021,7:05,7:45,40,16,300,19.1,15.9,1840,670,#2 (21 March),air,Astrid,pump rate: 0.7 ml/min,isotopes depleted a lot while sampling,-25,-135,SSW (UK); L N Andenes,,,
+27,24-03-2021,10:07,10:47,40,14.8,300,19.7,19.1,5851,4763,#2 (21 March),air,Tim,pump rate: 0.7 ml/min,"cold sector, sampling close to predicted d-excess maximum",-25.3,-130,SSW (UK); L N Andenes,,,
+28,24-03-2021,15:08,15:48,40,18,300,18.1,16.7,2180,514,#2 (21 March),air,Sissy,pump rate: 0.8 ml/min,"Sampling of storm no.2, occluded front approaching",-29.4,-161,W (Iceland); L over Andenes,,,
+29,24-03-2021,18:10,18:50,40,16,300,18.3,18.3,7160,6060,#2 (21 March),air,Sissy,pump rate: 0.7 ml/min,"at 18UTC, very high winds, close to forecasted dexcess minimum",-26.6,-143,N (Svalbard); CAO,,,
+30,25-03-2021,0:01,0:41,40,17,300,17.8,16.1,7721,13070,#2 (21 March),air,Rob,pump rate: 0.8 ml/min,estimated maximum wind speed of storm 2,-23.8,-115,NNW (Greenland - Svalbard); CAO,,,ethanol tube might have been close to the surface
+31,25-03-2021,6:08,6:48,40,14,300,17.0,16.8,4700,3700,#3 (25 March),air,Astrid,pump rate:  0.7 ml/min,Increased isotopes,-25.4,-120.2,NW (Greenland - Svalbard); CAO,,,ethanol tube might have been close to the surface
+32,25-03-2021,10:19,10:59,40,17,300,17.8,16.6,2165,3716,#3 (25 March),air,Tim,pump rate: 0.8 ml/min,"trying to catch the end of the COA from Greenland, d-excess maximum predicted",-25.3,-120.1,NW (Greenland - Svalbard); CAO,,,
+33,25-03-2021,17:08,17:48,40,18,300,15.8,14.8,1700,1060,#3 (25 March),air,Astrid,pump rate: 0.8 ml/min,after continous high winds measuring at low winds,-24.7,-112.8,NW (Greenland - Svalbard); CAO,,,
+34,25-03-2021,23:11,23:51,40,17,300,16.5,16.3,1519,1651,#3 (25 March),air,Rob,pump rate: 0.8 ml/min,"routine measurement, clear-sky",-25.3,-120.9,NW (Greenland - Svalbard),,,
+35,26-03-2021,6:07,6:47,40,17,300,17.4,16.4,1250,1000,#3 (25 March),air,Astrid,pump rate: 0.8 ml/min,"routine measurement, clear-sky",-26.6,-136.4,SSW (Norwegian coast),,,
+36,26-03-2021,12:11,12:51,40,16,300,19.7,19.4,637,850,#3 (25 March),air,Astrid,pump rate: 0.8 ml/min,"routine measurement, clear-sky",-28.7,-152.8,S (North Sweden),,,
+37,26-03-2021,18:15,18:55,40,16.5,300,20.5,19.0,1060,1330,#3 (25 March),air,Astrid,pump rate: 0.8 ml/min,"routine measurement, no precip",-28,-147,S (North Sweden),,,
+38,26-03-2021,23:46,0:27,40,17,300,19.3,18.4,1560,1000,#3 (25 March),air,Sissy,pump rate: 0.8 ml/min,"routine measurement, no precip",Isolope,,S (North Sweden),,,"misidentified a well, needs to be run again"
+39* (frz),27-03-2021,6:06,6:46,40,17,300,20.5,18.4,780,1180,#3 (25 March),air,Astrid,pump rate: 0.8 ml/min,"routine measurement, no precip",,,S (North Sweden),,,
+40*,27-03-2021,12:00,12:40,40,16,300,19.6,19.1,730,1100,#3 (25 March),air,Astrid,pump rate: 0.7 ml/min,"routine measurement, after precip",,,SSW (middle Norway),,,
+41*,27-03-2021,18:00,18:40,40,17,300,19.1,17.2,940,650,#3 (25 March),air,Astrid,pump rate: 0.7 ml/min,"low isotopes, before increase",,,SW (norwegian coast),,,
+42*,27-03-2021,22:34,23:15,40,17,300,18.1,17.0,300,260,#3 (25 March),air,Sissy,pump rate: 0.7 ml/min,valve was still in the wrong position and other pump still on the first 10 s when the coriolis started already,,,SW (norwegian coast),,,
+43*,28-03-2021,6:06,6:46,40,18,300,17.0,16.3,2340,2060,#3 (25 March),air,Astrid,pump rate: 0.8 ml/min,some increase in wind and sharp increase in d-excess (NB! the fan fell off and wasn't properly turned off the first 15 min),,,SW (Iceland),,,
+44*,28-03-2021,12:14,12:54,40,15,300,19.0,18.2,2680,2200,#3 (25 March),air,Sissy,pump rate: 0.7 ml/min,"routine measurement, no precip",,,SW (norwegian coast),,,
+45*,28-03-2021,18:05,18:46,40,15,300,18.2,16.8,1340,1280,#3 (25 March),air ,Sissy,pump rate: 0.7 ml/min,"routine measurement, no precip",,,SW (norwegian coast),,,
+46*,28-03-2021,22:35,23:15,40,16,300,,17.2,1000,1100,#3 (25 March),air,Sissy,pump rate: 0.8 ml/min,"routine measurement, no precip",-26,-127,,,,
+47*,29-03-2021,6:01,6:41,40,15.5,300,19.1,17.9,3090,2330,#3 (25 March),air,Astrid,pump rate: 0.7 ml/min,"routine measurement, light precip",-29.3,-159.3,SE (Norwegian inland),,,
+48,29-03-2021,11:58,12:38,40,14,300,20.1,20.0,530,660,#3 (25 March),air,Sissy,pump rate: 0.7 ml/min,"routine measurement, no precip",-29.3,-160,S (Northern Sweden),,,
+49,29-03-2021,17:54,18:34,40,15,300,19.7,18.4,870,980,#3 (25 March),air,Tim,pump rate: 0.8 ml/min,"routine measurement, no precip yet",-26.1,-138.1,S-SW,,,
+50,29-03-2021,23:00,23:40,40,17.5,300,18.8,17.5,625,341,#3 (25 March),air,Tim,pump rate: 0.8 ml/min,"routine measurement, during precip",-27.9,-154.4,S-SW,,,
+51,30-03-2021,5:59,6:39,40,18,300,18.1,17.2,630,400,#3 (25 March),air,Sissy,pump rate: 0.8 ml/min,"routine measurement, after shower",-30.5,-172,SSW,,,
+52,30-03-2021,12:45,13:25,40,7.5,300,18.8,17.9,1827,380,#3 (25 March),air,Tim,pump rate: 0.7 ml/min,"routine measurement, rain throughout",,,,,,only 7.5 mm as bottle got empty during sampling
