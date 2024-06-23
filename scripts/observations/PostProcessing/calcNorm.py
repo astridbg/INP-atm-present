@@ -86,9 +86,9 @@ T_std = 273.15
 
 for cor in range(nCor):
     
-    #nucleiOut_std.iloc[:,cor] = nucleiOut.iloc[:,cor] * p_std/pres_all[cor] * (273.15 + temp_all[cor])/T_std 
-    nucleiOut_std.iloc[:,cor] = nucleiOut.iloc[:,cor] * pres_all[cor]/p_std * T_std/(273.15 + temp_all[cor])
-nucleiOut_std.to_csv(wpath+"Coriolis_nucleiOut_std_2.csv")
+    nucleiOut_std.iloc[:,cor] = nucleiOut.iloc[:,cor] * p_std/pres_all[cor] * (273.15 + temp_all[cor])/T_std 
+    #nucleiOut_std.iloc[:,cor] = nucleiOut.iloc[:,cor] * pres_all[cor]/p_std * T_std/(273.15 + temp_all[cor])
+nucleiOut_std.to_csv(wpath+"Coriolis_nucleiOut_std.csv")
 print(np.shape(nucleiOut_std))
 
 

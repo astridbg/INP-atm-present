@@ -11,7 +11,7 @@ plt.rcParams.update({'font.size':18})
 
 
 # CALIOP DATA
-folder = '/tos-project2/NS9600K/shofer/'
+folder = '/projects/NS9600K/shofer/'
 data_folder = 'caliop_olimpia_new/netcdf_format/'
 
 files_ann = ['bulk_slfs_annual.nc', 'ct_slfs_annual.nc']
@@ -21,11 +21,11 @@ ann_bulk = xr.open_dataset(folder + data_folder + files_ann[0])
 ann_ct = xr.open_dataset(folder + data_folder + files_ann[1])
 
 # NORESM Data
-folder_n = ['/projects/NS9600K/astridbg/data/model/noresm_rawdata/cases/NF2000climo_f19_tn14_meyers92_20220210/atm/hist/',
-	    '/projects/NS9600K/astridbg/data/model/noresm_rawdata/cases/NF2000climo_f19_tn14_andenes21_20220222/atm/hist/']
+folder_n = ['/projects/NS9600K/astridbg/data/model/noresm_rawdata/cases/NF2000climo_f19_tn14_M92_20240522/atm/hist/',
+	    '/projects/NS9600K/astridbg/data/model/noresm_rawdata/cases/NF2000climo_f19_tn14_A21_20240522/atm/hist/']
 
-data_n = ['NF2000climo_f19_tn14_meyers92_20220210.cam.h0*.nc',
-	  'NF2000climo_f19_tn14_andenes21_20220222.cam.h0*.nc']
+data_n = ['NF2000climo_f19_tn14_M92_20240522.cam.h0*.nc',
+	  'NF2000climo_f19_tn14_A21_20240522.cam.h0*.nc']
 
 def preprocess(ds):
     ds_new = ds[['SLFXCLD_ISOTM', 'CT_SLFXCLD_ISOTM',
@@ -120,20 +120,20 @@ xr.plot.line(et_n_bulk * 100, y='isotherm',
 ax.errorbar(x=et_n_bulk * 100, y=et_n_bulk.isotherm, xerr=std_n_bulk * 100,
                  marker='.',color='black',ls='dotted',lw=2.5)
 xr.plot.line(et_n_ct * 100, y='isotherm',
-                 ax=ax, color='black', label='CT Obs', lw=2.5, ls='dashdot')
+                 ax=ax, color='black', label='Cloud Top Obs', lw=2.5, ls='dashdot')
 ax.errorbar(x=et_n_ct * 100, y=et_n_ct.isotherm, xerr=std_n_ct * 100,
                  marker='.',color='black',ls='dashdot',lw=2.5)
 
 
-#xr.plot.line(case_one_slf.slf_bulk * 100, y='isotherm',
-#                label='Bulk Model CAM5', ax=ax, lw=2.5, ls='dashed', c='tab:blue')
-#xr.plot.line(case_one_slf.slf_ct * 100, y='isotherm',
-#                label='CT Model CAM5', ax=ax, lw=2.5, c='tab:blue')
+xr.plot.line(case_one_slf.slf_bulk * 100, y='isotherm',
+                label='Bulk M92', ax=ax, lw=2.5, ls='dashed', c='tab:blue')
+xr.plot.line(case_one_slf.slf_ct * 100, y='isotherm',
+                label='Cloud Top M92', ax=ax, lw=2.5, c='tab:blue')
 
-#xr.plot.line(case_two_slf.slf_bulk * 100, y='isotherm',
-#                label='Bulk Model Andenes 2021', ax=ax, ls='dashed',lw=2.5, c='tab:orange')
-#xr.plot.line(case_two_slf.slf_ct * 100, y='isotherm',
-#                  label='CT Model Andenes 2021', ax=ax, lw=2.5, c='tab:orange')
+xr.plot.line(case_two_slf.slf_bulk * 100, y='isotherm',
+                label='Bulk A21', ax=ax, ls='dashed',lw=2.5, c='tab:orange')
+xr.plot.line(case_two_slf.slf_ct * 100, y='isotherm',
+                label='Cloud Top A21', ax=ax, lw=2.5, c='tab:orange')
 ax.invert_yaxis()
 
 sns.despine()
@@ -143,8 +143,8 @@ ax.set_xlabel('Supercooled Liquid Fraction (%)', fontsize=18)
 ax.set_ylabel('Isotherm (C)', fontsize=18)
 fig.subplots_adjust(right=0.6)
 ax.legend(frameon=False, loc="upper left",bbox_to_anchor=(1, 1))
-#fig.tight_layout()
-#fig.savefig(
-#    '/tos-project2/NS9600K/astridbg/master/figures/satellite_model_comparison/SLF_satellite_cam5_andenes.pdf')
+fig.tight_layout()
 fig.savefig(
-    '/tos-project2/NS9600K/astridbg/master/figures/satellite_model_comparison/SLF_satellite_obs.png')
+    '/projects/NS9600K/astridbg/INP-atm-present/figures/satellite_model_comparison/pdf/SLF_satellite_M92_A21_20240522.pdf')
+fig.savefig(
+    '/projects/NS9600K/astridbg/INP-atm-present/figures/satellite_model_comparison/png/SLF_satellite_M92_A21_20240522.png')

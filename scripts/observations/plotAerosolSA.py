@@ -20,7 +20,7 @@ path_station = "/projects/NS9600K/astridbg/data/observations/SN87110/"
 path_temp = "/projects/NS9600K/astridbg/data/observations/Inlet_Temp/"
 path_aero = "/projects/NS9600K/data/islas/MetOne/GT-526S/MetOne-20210314131343/2021/03/"
 path_sea = "/projects/NS9600K/astridbg/data/observations/Sea/"
-wpath = "/projects/NS9600K/astridbg/master/figures/observations/"
+wpath = "/projects/NS9600K/astridbg/INP-atm-present/figures/observations/"
 
 # -----------------------------
 # Coriolis data
@@ -148,7 +148,7 @@ for cor in t_start.index:
 
     print(cor.date(),", Coriolis sample: ",i)
 
-    time_opc = df_opc[str(cor.date())].index.hour
+    time_opc = df_opc.loc[str(cor.date())].index.hour
     index_cor_opc = np.where(np.logical_or(time_opc == cor.hour, time_opc == int(cor.hour + cor.minute/60. + 40./60.)))
     sfc = np.nanmean(np.array(df_opc['Total Surface Area'][str(cor.date())])[index_cor_opc])
 
@@ -208,6 +208,7 @@ axs[1,1].annotate("R: %.2f, R$^2$: %.2f" %(functions.r(t50,sfc_all),functions.rs
 axs[1,1].set_xlabel("Temperature at 50 % \n activated INPs ($^{\circ}$C)")
 axs[0,1].axis('off')
 
-plt.savefig(wpath+"surfacearea.pdf", bbox_inches="tight")
+plt.savefig(wpath+"pdf/surfacearea.pdf", bbox_inches="tight")
+plt.savefig(wpath+"png/surfacearea.png", bbox_inches="tight")
 
 

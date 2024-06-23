@@ -1,9 +1,9 @@
 import xarray as xr
 import pandas as pd
 import numpy as np
-import math
 import matplotlib.pyplot as plt
 from matplotlib.ticker import StrMethodFormatter
+from cmcrameri import cm
 # Set font style to match latex document----------
 plt.rcParams['mathtext.fontset'] = 'stix'
 plt.rcParams['font.family'] = 'STIXGeneral'
@@ -26,12 +26,6 @@ date1 = "2007-04-15_2010-03-15"
 date2 = "2007-04-15_2010-03-15"
 
 #------------------------------
-# Two-dimensional fields
-#------------------------------
-
-variables = ["SWCF","LWCF","SWCFS","LWCFS","CLDTOT","CLDHGH","CLDMED","CLDLOW","TGCLDIWP","TGCLDLWP","TREFHT"]
-
-#------------------------------
 # Areas to analyse
 #------------------------------
 
@@ -39,6 +33,13 @@ NYA = [78.9227, 11.9273] # Ny-Ålesund
 ALE = [82.5, 297.6] # Alert
 BAR = [71.17, 203.55] # Barrow
 npole = [[0,360],[85,90]] # North Pole
+
+#------------------------------
+# Two-dimensional fields
+#------------------------------
+
+variables = ["SWCF","LWCF","SWCFS","LWCFS","CLDTOT","CLDHGH","CLDMED","CLDLOW","TGCLDIWP","TGCLDLWP","TREFHT", "NETCFS"]
+variables = ["CLDTOT", "CLDLOW"]
 
 """
 #------------------------------
@@ -153,14 +154,14 @@ for var in variables:
     fig,axs = plt.subplots(ncols=2,nrows=1, gridspec_kw={'width_ratios': [3, 1]}, figsize=[13,4],dpi=300,constrained_layout=True)
     ax = axs[0]
     ax2 = axs[1]
-    fig.suptitle(ds1[var].long_name+", "+case2nm+r"$-$"+case1nm, fontsize=26)
+    #fig.suptitle(ds1[var].long_name+", "+case2nm+r"$-$"+case1nm, fontsize=26)
 
-    ax.plot(months, ds2_arct-ds1_arct, color="cornflowerblue", label="Arctic")
-    ax.plot(months, ds2_NYA-ds1_NYA, color="mediumseagreen", label="Ny-Ålesund")
-    ax.plot(months, ds2_ALE-ds1_ALE, color="magenta", label="Alert")
-    ax.plot(months, ds2_BAR-ds1_BAR, color="crimson", label="Utqiagvik")
-    ax.plot(months, ds2_npol-ds1_npol, color="olive", label="North Pole")
-    ax.set_ylabel(ds1[var].units)
+    ax.plot(months, ds2_arct-ds1_arct, color=cm.romaO.colors[0], label="Arctic")
+    ax.plot(months, ds2_NYA-ds1_NYA, color=cm.romaO.colors[49], label="Ny-Ålesund")
+    ax.plot(months, ds2_ALE-ds1_ALE, color=cm.romaO.colors[99], label="Alert")
+    ax.plot(months, ds2_BAR-ds1_BAR, color=cm.romaO.colors[149], label="Utqiagvik")
+    ax.plot(months, ds2_npol-ds1_npol, color=cm.romaO.colors[199], label="North Pole")
+    ax.set_ylabel(r"$\Delta$"+ds1[var].units)
     ax.tick_params(axis="x",labelsize=20)
     ax.grid(alpha=0.5)
 
@@ -176,8 +177,27 @@ for var in variables:
     
         change_all = pd.DataFrame({"Arctic":abs_arct,"Ny-Ålesund":abs_nya,"Alert":abs_ale,"Utqiagvik":abs_bar,"North Pole":abs_npol})
         bplot=ax2.boxplot(change_all,patch_artist=True,medianprops={"color":"black"})
-        ax2.set_ylabel(ds1[var].units)
+        ax2.set_ylabel(r"$\Delta$"+ds1[var].units)
     
+    elif var == "TGCLDLWP" or var == "CLDLWEM":
+
+        # Get average relative change
+        # Shrink y axis due to extreme values
+
+        rel_arct = ((ds2_arct-ds1_arct)/ds1_arct.where(ds1_arct!=0)).fillna(0)*100*np.sign(ds1_arct)
+        rel_nya = ((ds2_NYA-ds1_NYA)/ds1_NYA.where(ds1_NYA!=0)).fillna(0)*100*np.sign(ds1_NYA)
+        rel_ale = ((ds2_ALE-ds1_ALE)/ds1_ALE.where(ds1_ALE!=0)).fillna(0)*100*np.sign(ds1_ALE)
+        rel_bar = ((ds2_BAR-ds1_BAR)/ds1_BAR.where(ds1_BAR!=0)).fillna(0)*100*np.sign(ds1_BAR)
+        rel_npol = ((ds2_npol-ds1_npol)/ds1_npol.where(ds1_npol!=0)).fillna(0)*100*np.sign(ds1_npol)
+    
+    
+        rel_all = pd.DataFrame({"Arctic":rel_arct,"Ny-Ålesund":rel_nya,"Alert":rel_ale,"Utqiagvik":rel_bar,"North Pole":rel_npol})
+        bplot=ax2.boxplot(rel_all,patch_artist=True,medianprops={"color":"black"},showfliers=False)
+        ax2.set_ylabel("% change")
+        ax2.set_yscale("log")
+        print("Arctic annual average relative change (%): ", np.mean(rel_arct))
+
+
     else:
         # Get average relative change
     
@@ -189,10 +209,10 @@ for var in variables:
     
     
         rel_all = pd.DataFrame({"Arctic":rel_arct,"Ny-Ålesund":rel_nya,"Alert":rel_ale,"Utqiagvik":rel_bar,"North Pole":rel_npol})
-        bplot=ax2.boxplot(rel_all,patch_artist=True,medianprops={"color":"black"})
-        ax2.set_ylabel("%")
+        bplot=ax2.boxplot(rel_all,patch_artist=True,medianprops={"color":"black"},showfliers=False)
+        ax2.set_ylabel("% change")
     
-    colors=["cornflowerblue","mediumseagreen","magenta","crimson","olive"]
+    colors=cm.romaO.colors[::50][:5]
     for patch, color in zip(bplot['boxes'], colors):
         patch.set_facecolor(color)
     ax2.set_xticklabels([])

@@ -9,7 +9,14 @@ wpath="/projects/NS9600K/astridbg/data/model/noresm_postprocessed/"
 
 #case = "def_20210126"
 #case = "meyers92_20220210"
-case = "andenes21_20220222"
+#case = "andenes21_20220222"
+#case = "andenes21_20240322"
+#case = "andenes21_20240322_biggsoff"
+#case = "A21_20240522"
+#case = "M92_20240522"
+#case = "M92_4K_20240607"
+case = "M92_20240610"
+
 casefolder="NF2000climo_f19_tn14_"+case
 
 all_files = glob.glob(rpath+casefolder+"/atm/hist/"+casefolder+".cam.h0.*")
@@ -37,17 +44,21 @@ print("Postprocessing completed")
 # Store relevant variables intermediately to save time when plotting,
 # change to desired units and create combined variables 
 #--------------------------------------------------------------------
-date = "2007-04-15_2010-03-15"
+#date = "2007-04-15_2010-03-15"
+#date = "2007-04-15_2008-03-15"
+#date = "2007-04-15_2007-12-15"
+date = "2007-04-15"
+
 
 # For cases meyers92 and andenes21
 #variables = ["NIMEY","AWNI", "FREQI","CLDICE","SWCF","LWCF","LWCFS","SWCFS","NETCFS","AWNICC","CLDTOT","CLDHGH","CLDMED","CLDLOW","TGCLDIWP","TGCLDLWP","TREFHT"]
 
 # For case def
-#variables = ["AWNI", "FREQI","CLDICE","SWCF","LWCF","LWCFS","SWCFS","NETCFS","AWNICC","TH","CLDTOT","CLDHGH","CLDMED","CLDLOW","TGCLDIWP","TGCLDLWP","TREFHT"]
+variables = ["AWNI", "FREQI","CLDICE","LWCFS","SWCFS","NETCFS","TH","CLOUD", "CLDTOT","CLDHGH","CLDMED","CLDLOW","TGCLDIWP","TGCLDLWP","TREFHT"]
 
 #variables = ["FSNT","FSNTC","FSNTOA","FSNTOAC","FSUTOA", "FLNT", "FLNTC", "FLUT", "FLUTC"]
-variables = ["ICEFRAC"]
 
+variables = ['TREFHT']
 for var in variables:
     print("Started writing variable:")
 	
@@ -96,12 +107,39 @@ for var in variables:
         ds[var].attrs["units"] = "W/m$^2$"
         ds[var].attrs["long_name"] = "Shortwave cloud radiative effect at surface"
 	
+    if var == "AWNINONIMEY":
+        ds = ds.assign(AWNINONIMEY=ds["AWNI"]-ds["NIMEY"])
+        ds[var].values = ds[var].values*1e-3 # Change unit to number per litre
+        ds[var].attrs["units"] = "1/L"
+        ds[var].attrs["long_name"] = "Average cloud ice number concentration minus Meyer's contribution"
+    
     if var == "AWNICC":
         ds = ds.assign(AWNICC=ds["AWNI"]/ds["FREQI"].where(ds["FREQI"]>0))
         ds[var] = ds[var].fillna(0)
         ds[var].values = ds[var].values*1e-3 # Change unit to number per litre
         ds[var].attrs["units"] = "1/L"
         ds[var].attrs["long_name"] = "Average cloud ice number concentration in cold clouds"
+
+    if var == "AWNICLD":
+        ds = ds.assign(AWNICLD=ds["AWNI"]/ds["CLOUD"].where(ds["CLOUD"]>0))
+        ds[var] = ds[var].fillna(0)
+        ds[var].values = ds[var].values*1e-3 # Change unit to number per litre
+        ds[var].attrs["units"] = "1/L"
+        ds[var].attrs["long_name"] = "Average cloud ice number concentration in clouds"
+    
+    if var == "NIMEYCC":
+        ds = ds.assign(NIMEYCC=ds["NIMEY"]/ds["FREQI"].where(ds["FREQI"]>0))
+        ds[var] = ds[var].fillna(0)
+        ds[var].values = ds[var].values*1e-3 # Change unit to number per litre
+        ds[var].attrs["units"] = "1/L"
+        ds[var].attrs["long_name"] = "Activated Ice Number Concentation due to Meyers' parameterisation in cold clouds"
+
+    if var == "NIMEYCLD":
+        ds = ds.assign(NIMEYCLD=ds["NIMEY"]/ds["CLOUD"].where(ds["CLOUD"]>0))
+        ds[var] = ds[var].fillna(0)
+        ds[var].values = ds[var].values*1e-3 # Change unit to number per litre
+        ds[var].attrs["units"] = "1/L"
+        ds[var].attrs["long_name"] = "Activated Ice Number Concentation due to Meyers' parameterisation in clouds"
         
     if var == "NETCFS":
         ds = ds.assign(NETCFS=ds["FSNS"]-ds["FSNSC"]-ds["FLNS"]-(-ds["FLNSC"]))

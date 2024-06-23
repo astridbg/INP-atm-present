@@ -89,7 +89,7 @@ plt.xlim(-30,-2)
 x = np.linspace(-30,-2,100)
 # Plot parameterization without outlier 
 plt.plot(x, np.exp(intercept_ex + slope_ex*x), linewidth=4, color="orange",
-        label="exp("+str(round(intercept_ex,3))+" - "+str(round(np.sign(slope_ex)*slope_ex,3))+r"$\times T$)")
+        label="\n Andenes 2021, \n exp("+str(round(intercept_ex,3))+" - "+str(round(np.sign(slope_ex)*slope_ex,3))+r"$\times T$)")
 # Plot Meyers
 plt.plot(x, meyers(x), linewidth=3, color="red",label="Meyers et al. (1992)",linestyle="dotted")
 # Plot Li and Wieder, with extra one to move legend name
@@ -102,6 +102,7 @@ plt.plot(x, 2.111*10**(-4)*np.exp(-0.263*x),linewidth=3,linestyle="dashed",color
         label="Sze et al. (2023), Greenland summer")
 plt.plot(x, 4.711*10**(-7)*np.exp(-0.492*x),linewidth=3,linestyle="dashed",color="darkviolet",
         label="Sze et al. (2023), Greenland winter")
+plt.plot(x, np.exp(intercept_ex + slope_ex*x), linewidth=4, color="orange")
 plt.xlabel(r"Temperature $T$ [$^{\circ}$C]")
 plt.ylabel(r"INP concentration [#/L$_{std}$]")
 

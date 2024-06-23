@@ -19,7 +19,7 @@ thermopath='/projects/NS9600K/data/islas/Chiller_Temp_Calib_2/Temp_Calib_'
 filenames=['2021-03-27_13-08-23_bottom_right_and_upper_right','2021-03-27_13-08-23_bottom_right_and_upper_right',
             '2021-03-28_13-44-00_bottom_left_upper_left','2021-03-28_13-44-00_bottom_left_upper_left',
             '2021-03-29_08-54-35']
-wpath="/projects/NS9600K/astridbg/master/figures/observations/PostProcessing/"
+wpath="/projects/NS9600K/astridbg/INP-atm-present/figures/observations/"
 
 colors = sns.color_palette('deep',5)
 markers = ['x','o','*','+','^']
@@ -99,4 +99,4 @@ plt.plot(DR1_interpol['temp_degC'], slope*DR1_interpol['temp_degC'] + intercept,
         label=r'%.2f + %.2f$\times T_{DRINCO}$' %(intercept, slope))
 plt.grid(alpha=0.5)
 plt.legend()
-plt.savefig(wpath+"Tcal.pdf", bbox_inches="tight")
+plt.savefig(wpath+"Tcal.png", bbox_inches="tight")

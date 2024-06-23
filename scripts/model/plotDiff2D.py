@@ -13,24 +13,30 @@ import cartopy.crs as ccrs
 import functions
 
 rpath="/projects/NS9600K/astridbg/data/model/noresm_postprocessed/"
-wpath="/projects/NS9600K/astridbg/INP-atm-present/figures/model/diff_all/"
+wpath="/projects/NS9600K/astridbg/INP-atm-present/figures/model/diff_2D/"
 
 # Default cases----------------
 #case1 = "def_20210126"; case1nm = "CAM6"
-case1 = "meyers92_20220210"; case1nm = "M92"
+#case1 = "meyers92_20220210"; case1nm = "M92"
+case1 = "M92_20240522"; case1nm = "M92"
+#case1 = "andenes21_20220222"; case1nm = "A21"
 # Modified cases---------------
 #case2 = "meyers92_20220210"; case2nm = "M92"
-case2 = "andenes21_20220222"; case2nm = "A21"
+#case2 = "andenes21_20220222"; case2nm = "A21"
+case2 = "A21_20240522"; case2nm = "A21"
+#case2 = "andenes21_20240322"; case2nm = "A21_nohet"
+#case2 = "andenes21_20240322_biggsoff"; case2nm = "A21_nobigg"
 #------------------------------	
 date1 = "2007-04-15_2010-03-15"
 date2 = "2007-04-15_2010-03-15"
+#date2 = "2007-04-15_2007-12-15"
 
 #------------------------------
 # Two-dimensional fields
 #------------------------------
 
 variables = ["SWCF","LWCF","SWCFS","LWCFS","NETCFS","CLDTOT","CLDHGH","CLDMED","CLDLOW","TGCLDIWP","TGCLDLWP","TREFHT"]
-variables = ["SWCFS","LWCFS"]
+variables = ["TGCLDIWP","TGCLDLWP"]
 
 #------------------------------
 # Shaping and plotting fields
@@ -41,8 +47,10 @@ for var in variables:
     ds2 = xr.open_dataset(rpath+var+"_"+case2+"_"+date2+".nc")
 	
     # Get start and end date of period
-    date_start = str(ds1.time[0].values).split(" ")[0]
-    date_end = str(ds1.time[-1].values).split(" ")[0]
+    #date_start = str(ds1.time[0].values).split(" ")[0]
+    #date_end = str(ds1.time[-1].values).split(" ")[0]
+    date_start = str(ds2.time[0].values).split(" ")[0]
+    date_end = str(ds2.time[-1].values).split(" ")[0]
 
     # Get difference between cases time averaged over the whole period
     diff = ds2[var].mean("time")-ds1[var].mean("time")
@@ -54,7 +62,6 @@ for var in variables:
     lev_extent = round(max(abs(np.min(diff.sel(lat=slice(66.5,90)).values)), abs(np.max(diff.sel(lat=slice(66.5,90)).values))),2)
     if lev_extent < 0.004:
         lev_extent = 0.004
-    lev_extent = 18
     levels = np.linspace(-lev_extent,lev_extent,25)
 	
     # Set the projection to use for plotting
@@ -82,7 +89,7 @@ for var in variables:
     elif 0.004 <= lev_extent < 0.04:
         cbar.ax.xaxis.set_major_formatter(StrMethodFormatter('{x:,.3f}')) # Three decimal places
 
-    plt.savefig(wpath+"pdf/"+var+"_"+case1+"_"+case2+"_eqbar.pdf",bbox_inches="tight")
-    plt.savefig(wpath+"png/"+var+"_"+case1+"_"+case2+"_eqbar.png",bbox_inches="tight")	
+    plt.savefig(wpath+"pdf/"+var+"_"+case1+"_"+case2+".pdf",bbox_inches="tight")
+    plt.savefig(wpath+"png/"+var+"_"+case1+"_"+case2+".png",bbox_inches="tight")	
     
     plt.clf()

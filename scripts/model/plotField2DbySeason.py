@@ -17,16 +17,28 @@ wpath="/projects/NS9600K/astridbg/INP-atm-present/figures/model/spatial/"
 
 # Case ------------------------
 #case = "def_20210126"; casenm = "CAM6"
-#case = "meyers92_20220210"; casenm = "M92"
-case = "andenes21_20220222"; casenm = "A21"
+case = "meyers92_20220210"; casenm = "M92"
+#case = "andenes21_20220222"; casenm = "A21"
+#case = "M92_20240522"; casenm="M92"
 #------------------------------	
 date = "2007-04-15_2010-03-15"
+#------------------------------
+# Add seasonal open ocean mask
+#------------------------------
+ocean_mask = False
+if ocean_mask:
+    ds_ocn = xr.open_dataset(rpath+"OCNFRAC"+"_"+case+"_"+date+".nc")
+    open_sea = ds_ocn > 0.85
+    open_sea = open_sea.groupby("time.season").mean("time")
+    open_sea = open_sea >= 0.5
+
+
 #------------------------------
 # Two-dimensional fields
 #------------------------------
 
 variables = ["SWCF","LWCF","SWCFS","LWCFS","NETCFS","CLDTOT","CLDHGH","CLDMED","CLDLOW","TGCLDIWP","TGCLDLWP","TREFHT"]
-variables = ["LWCF"]
+variables = ["TGCLDIWP"]
 
 #------------------------------
 # Shaping and plotting fields
@@ -34,7 +46,6 @@ variables = ["LWCF"]
 for var in variables:
     print(var)
     ds = xr.open_dataset(rpath+var+"_"+case+"_"+date+".nc")
-    ice_edge = xr.open_dataset(rpath+"PI_EDGE_andenes21_20220222_byseason.nc")
 
     # Get start and end date of period
     date_start = str(ds.time[0].values).split(" ")[0]  
@@ -52,7 +63,7 @@ for var in variables:
 
     fig = plt.figure(1, figsize=[9,10],dpi=300)
     title = ds[var].long_name+"\n"+casenm+"\n"
-    fig.suptitle(title, fontsize=22)
+    #fig.suptitle(title, fontsize=22)
 	
     # Set the projection to use for plotting
     ax1 = plt.subplot(2, 2, 1, projection=ccrs.Orthographic(0, 90))
@@ -68,7 +79,8 @@ for var in variables:
                                            levels=levels,
                                            add_colorbar=False)
 
-        ax.plot(ice_edge.lon, ice_edge["ice_edge_lat"].sel(season=season).values, transform=ccrs.PlateCarree(), color="yellow")
+        if ocean_mask:
+            ax.contourf(open_sea.lon, open_sea.lat, open_sea["OCNFRAC"].sel(season=season), transform=ccrs.PlateCarree(), colors='none',hatches=['..'],levels=[.5, 1.5])
         ax.set_title(season, fontsize=22)
         ax.coastlines()
 

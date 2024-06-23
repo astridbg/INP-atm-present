@@ -19,20 +19,23 @@ wpath="/projects/NS9600K/astridbg/INP-atm-present/figures/model/diff_height/"
 #case1 = "def_20210126"; case1nm = "CAM6"
 case1 = "meyers92_20220210"; case1nm = "M92"
 #case1 = "andenes21_20220222"; case1nm = "A21"
+#case1 = "M92_20240522"; case1nm = "M92"
 # Modified cases---------------
 #case2 = "meyers92_20220210"; case2nm = "M92"
 case2 = "andenes21_20220222"; case2nm = "A21"
 #case2 = "andenes21_20240322"; case2nm = "A21_nohet"
 #case2 = "andenes21_20240322_biggsoff"; case2nm = "A21_nobigg"
+#case2 = "A21_20240522"; case2nm="A21"
+#case2 = "M92_20240522"; case2nm = "M92"
 #------------------------------	
 date1 = "2007-04-15_2010-03-15"
 date2 = "2007-04-15_2010-03-15"
 #date2 = "2007-04-15_2007-12-15"
 
 #------------------------------
-# Add seasonal open ocean mask
+# Add open ocean mask
 #------------------------------
-ocean_mask = True
+ocean_mask = False
 if ocean_mask:
     ds_ocn = xr.open_dataset(rpath+"OCNFRAC"+"_"+case2+"_"+date2+".nc")
     open_sea = ds_ocn > 0.85
@@ -40,18 +43,34 @@ if ocean_mask:
     open_sea = open_sea >= 0.5
 
 #------------------------------
-# Three-dimensional fields
-# for specific level
+# Two three-dimensional fields
+# with specific level
 #------------------------------
 
-var_level = "850"
-variables = ["NIMEY","AWNI","AWNICC","CLDICE","Q","RELHUM"]
-variables = ["CLOUD"]
+var_level = 850
+concentrations = ["NIMEY", "AWNICC", "AWNI", "NIMEYCC", "NIMEYCLD", "AWNICLD", "AWNINONIMEY", "NUMICE"]
+variables = [["FREQI", "NUMICE"]]
+
+#------------------------------
+# Titles
+#------------------------------
+
+#var1_name = "Cloud ice number conc. \n in ice clouds (1/L)"
+#var2_name = "Ice cloud fractional occurence"
+#map_title="Relative change in \n ice cloud fractional occurence \n at 859 hPa \n"
+
+var1_name = "Cold cloud fractional occurence"
+var2_name = "Grid-box averaged \n cloud ice number conc. (1/kg)"
+map_title="Relative change in \n cloud ice number conc. \n at 859 hPa"
+
 
 for var in variables:
-      print(var)
+      var_xtra = var[0]
+      var = var[1]
       ds1 = xr.open_dataset(rpath+var+"_"+case1+"_"+date1+".nc")
       ds2 = xr.open_dataset(rpath+var+"_"+case2+"_"+date2+".nc")
+      ds1_xtra = xr.open_dataset(rpath+var_xtra+"_"+case1+"_"+date1+".nc")
+      ds2_xtra = xr.open_dataset(rpath+var_xtra+"_"+case2+"_"+date2+".nc")
       
       # Get start and end date of period
       date_start = str(ds1.time[0].values).split(" ")[0]
@@ -75,7 +94,7 @@ for var in variables:
 
       lev_extent = round(max(abs(np.nanmin(reldiff.sel(lat=slice(66.5,90)).values)), 
                               abs(np.nanmax(reldiff.sel(lat=slice(66.5,90)).values))))
-      #lev_extent = 30
+      lev_extent = 50
       #lev_min = np.nanmin(reldiff.sel(lat=slice(66.5,90)).values)
       #lev_max = np.nanmax(reldiff.sel(lat=slice(66.5,90)).values)                 
       #lev_min = -50
@@ -89,6 +108,9 @@ for var in variables:
       # - for the Arctic
       ds1_arct_height = functions.computeWeightedMean(ds1m[var].sel(lat=slice(66.5,90),lev=slice(350, 1000)))
       ds2_arct_height = functions.computeWeightedMean(ds2m[var].sel(lat=slice(66.5,90),lev=slice(350, 1000)))
+      
+      ds1_xtra_arct = functions.computeWeightedMean(ds1_xtra[var_xtra].mean("time").sel(lat=slice(66.5,90),lev=slice(350, 1000)))
+      ds2_xtra_arct = functions.computeWeightedMean(ds2_xtra[var_xtra].mean("time").sel(lat=slice(66.5,90),lev=slice(350, 1000)))
 
       height_levels = ds1.lev.sel(lev=slice(350, 1000)).values
 
@@ -96,33 +118,65 @@ for var in variables:
       #total_rel = functions.computeWeightedMean(reldiff.sel(lat=slice(66.5,90)))
       #print(total_rel)
 
-      fig  = plt.figure(figsize=[12,7],dpi=300)
+      fig  = plt.figure(figsize=[18,7],dpi=300)
 
       #fig.suptitle(ds1[var].long_name, fontsize=23)
       
-      ax1 = plt.subplot(1,2,1)
+      ax0 = plt.subplot(1, 3, 1)
+      plt.plot(ds1_xtra_arct, height_levels, label=case1nm, color="tab:blue",linestyle="--",linewidth=2)
+      plt.plot(ds2_xtra_arct, height_levels, label=case2nm, color="tab:orange",linewidth=2)
+      plt.hlines(ds1_level.lev.values, ax0.get_xlim()[0],ax0.get_xlim()[1], color="black",linestyle=":")
+      if var_xtra in concentrations:
+         plt.xscale("log")
+      plt.ylabel("hPa")
+      #plt.xlabel(ds1_xtra[var_xtra].long_name+", "+ds1_xtra[var_xtra].units)
+      plt.xlabel(var1_name)
+      plt.legend(loc="upper left",frameon=True,title="Arctic averages",fancybox=False)
+      plt.grid(alpha=0.5)
+      ax0.invert_yaxis()
+      ax0.annotate("(a)",fontsize=25,
+                xy=(0, 1), xycoords='axes fraction',
+                xytext=(-30, 20), textcoords='offset points',
+                ha='left', va='top')
+
+      ax1 = plt.subplot(1, 3, 2)
       plt.plot(ds1_arct_height, height_levels, label=case1nm, color="tab:blue",linestyle="--",linewidth=2)
       plt.plot(ds2_arct_height, height_levels, label=case2nm, color="tab:orange",linewidth=2)
       plt.hlines(ds1_level.lev.values, ax1.get_xlim()[0],ax1.get_xlim()[1], color="black",linestyle=":")
-      if var == "NIMEY" or var == "AWNICC" or var == "AWNI" or var == "NIMEYCC" or var == "NIMEYCLD" or var == "AWNICLD" or var == "AWNINONIMEY":
+      #plt.hlines(ds1_level.lev.values, 1,ax1.get_xlim()[1], color="black",linestyle=":")
+      if var in concentrations:
          plt.xscale("log")
-      plt.ylabel("hPa")
-      plt.xlabel(ds1[var].units)
-      plt.legend(loc="upper right",frameon=True,title="Arctic averages",fancybox=False)
-      plt.grid(alpha=0.5)
-      plt.gca().invert_yaxis()
+      #plt.ylabel("hPa")
+      plt.yticks(np.arange(400, 1100, 100), labels=[])
+      #plt.xlabel(ds1[var].long_name+", "+ds1[var].units)
+      plt.xlabel(var2_name)
 
-      ax2 = plt.subplot(1,2,2, projection=ccrs.Orthographic(0, 90))
+      #plt.xticks([1, 10])
+      #plt.legend(loc="upper left",frameon=True,title="Arctic averages",fancybox=False)
+      plt.grid(alpha=0.5)
+      ax1.invert_yaxis()
+      ax1.annotate("(b)",fontsize=25,
+                xy=(0, 1), xycoords='axes fraction',
+                xytext=(-30, 20), textcoords='offset points',
+                ha='left', va='top')
+
+      ax2 = plt.subplot(1,3,3, projection=ccrs.Orthographic(0, 90))
       functions.polarCentral_set_latlim([66.5,90], ax2)
       map = reldiff.plot.pcolormesh(ax=ax2, transform=ccrs.PlateCarree(), 
                                              cmap="coolwarm",#cmap=plt.cm.get_cmap('Blues').reversed(), #cmap="coolwarm"
                                              levels=levels,
                                              add_colorbar=False)
+
+      ax2.coastlines()
+      ax2.annotate("(c)",fontsize=25,
+                xy=(0, 1), xycoords='axes fraction',
+                xytext=(-30, 68), textcoords='offset points',
+                ha='left', va='top')
       if ocean_mask:
             ax2.contourf(open_sea.lon, open_sea.lat, open_sea["OCNFRAC"], transform=ccrs.PlateCarree(), colors='none',hatches=['..'],levels=[.5, 1.5])
-      ax2.coastlines()
-      ax2.set_title("Level = "+lev_name+" hPa")  
-      cb_ax = fig.add_axes([0.5, 0.11, 0.4, 0.04])
+      #ax2.set_title("Relative change in\n"+ds1[var].long_name, fontsize=20) 
+      ax2.set_title(map_title, fontsize=20)
+      cb_ax = fig.add_axes([0.66, 0.11, 0.27, 0.04])
 
       cbar = plt.colorbar(map, cax=cb_ax, spacing = 'uniform', extend='both', orientation='horizontal', fraction=0.046, pad=0.06)
       #cbar.ax.tick_params(labelsize=18)
@@ -137,8 +191,8 @@ for var in variables:
          cbar.ax.xaxis.set_major_formatter(StrMethodFormatter('{x:,.3f}')) # Three decimal places
       
 
-      plt.savefig(wpath+"pdf/"+var+"_heightplusrelhoriz_"+lev_name+"_"+case1+"_"+case2+".pdf",bbox_inches="tight")
-      plt.savefig(wpath+"png/"+var+"_heightplusrelhoriz_"+lev_name+"_"+case1+"_"+case2+".png",bbox_inches="tight")
+      plt.savefig(wpath+"pdf/"+var+"_"+var_xtra+"_heightplusrelhoriz_"+lev_name+"_"+case1+"_"+case2+".pdf",bbox_inches="tight")
+      plt.savefig(wpath+"png/"+var+"_"+var_xtra+"_heightplusrelhoriz_"+lev_name+"_"+case1+"_"+case2+".png",bbox_inches="tight")
       plt.clf()	
       #i += 1
 

@@ -1,233 +1,347 @@
-import numpy as np
-import pandas as pd
 import xarray as xr
+import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.ticker import StrMethodFormatter
+# Set font style to match latex document----------
+plt.rcParams['mathtext.fontset'] = 'stix'
+plt.rcParams['font.family'] = 'STIXGeneral'
+plt.rcParams.update({'font.size':20})
+# ------------------------------------------------
+from functions import *
 
-# Data path
-ALE_path = "/home/astridbg/Documents/data/stations/ALE_basic_rad_2004-2014/datasets/"
-ALE_fname = "ALE_basic_rad_2004-2014.csv"
-ALE_lat = 82.5; ALE_lon = 62.3
+model_rpath="/projects/NS9600K/astridbg/data/model/noresm_postprocessed/"
+obs_rpath="/projects/NS9600K/astridbg/data/observations/radiation/stations/"
+wpath="/projects/NS9600K/astridbg/INP-atm-present/figures/radiation_comparison/groundbased_comparison/"
+#wpath = "/projects/NS9600K/astridbg/INP-atm-present/figures/radiation_comparison/groundbased_comparison/20240522/"
 
-NYA_path = "/home/astridbg/Documents/data/stations/NYA_radiation_2006-05_etseq/datasets/"
-NYA_fname = "NYA_radiation_2006-2023.csv"
+station_paths = ["ALE_basic_rad_2004-2014/datasets/ALE_basic_rad_2004-2014.csv",
+                 "BAR_radiation_1992-01_etseq/datasets/BAR_radiation_1992-2022.csv",
+                 "NYA_radiation_2006-05_etseq/datasets/NYA_radiation_2006-2023.csv"]
+
+#-------------------------------------
+# Station coordinates and names
+#-------------------------------------
+
+ALE_lat = 82.5; ALE_lon = 360-62.3
 NYA_lat = 78.9227; NYA_lon = 11.927300
+BAR_lat = 71.17; BAR_lon = 360-156.47
 
-BAR_path = "/home/astridbg/Documents/data/stations/BAR_radiation_1992-01_etseq/datasets/"
-BAR_fname = "BAR_radiation_1992-2022.csv"
-BAR_lat = 71.17; BAR_lon = 156.47
+station_coords = [[ALE_lat, ALE_lon], 
+                  [BAR_lat, BAR_lon], 
+                  [NYA_lat, NYA_lon]]
+station_names = ["Alert", "Utqiaġvik", "Ny-Ålesund"]
+#-------------------------------------
+# Read data
+#-------------------------------------
 
-EUR_path = "/home/astridbg/Documents/data/stations/EUR_basic_rad_2007-2011//datasets/"
-EUR_fname = "EUR_radiation_2007-2011.csv"
-EUR_lat = 78.59; EUR_lon = 85.49
-
-# Model path
-noresm_path = "/home/astridbg/Documents/data/noresm_postprocessed/"
-
-# Paths to figures
-fig_path = "/home/astridbg/Documents/master/figures/radiation_comparison/groundbased_comparison/"
+obs_dfs = []
+for i in range(len(station_paths)):
+    df = pd.read_csv(obs_rpath+station_paths[i], index_col=0)
+    obs_dfs.append(df)
 
 # Model variables to consider
-model_vars = ['FSUTOA', 'FLUT', 'FLUTC', 'FLNT', 'FLNTC', 'FSNT', 'FSNTC', 'SWCFS', 'LWCFS', 'FSNS', 'FLNS', 'FSNSC', 'FLNSC', 'CLDTOT']
+#model_vars = ['SWCFS', 'LWCFS', 'FSNS', 'FLNS', 'FSNSC', 'FLNSC', 'CLDTOT', 'FLDS', 'FSDS']
+model_vars = ['SWCFS', 'LWCFS', 'FSNS', 'FLNS', 'FSNSC', 'FLNSC', 'CLDTOT', 'FLDS', 'FSDS', 'TREFHT']
+A21 = xr.open_mfdataset([model_rpath+var+'_andenes21_20220222_2007-04-15_2010-03-15.nc' for var in model_vars])
+M92 = xr.open_mfdataset([model_rpath+var+'_meyers92_20220210_2007-04-15_2010-03-15.nc' for var in model_vars])
+#A21 = xr.open_mfdataset([model_rpath+var+'_A21_20240522_2007-04-15_2010-03-15.nc' for var in model_vars])
+##M92 = xr.open_mfdataset([model_rpath+var+'_M92_20240522_2007-04-15_2010-03-15.nc' for var in model_vars])
 
-# Read data
-ALE_df = pd.read_csv(ALE_path + ALE_fname, index_col=0)
-NYA_df = pd.read_csv(NYA_path + NYA_fname, index_col=0)
-BAR_df = pd.read_csv(BAR_path + BAR_fname, index_col=0)
-EUR_df = pd.read_csv(EUR_path + EUR_fname, index_col=0)
-A21 = xr.open_mfdataset([noresm_path+var+'_andenes21_20220222_2007-04-15_2010-03-15.nc' for var in model_vars])
-M92 = xr.open_mfdataset([noresm_path+var+'_meyers92_20220210_2007-04-15_2010-03-15.nc' for var in model_vars])
-print(A21.FLUT)
-quit()
+#-------------------------------------
+# Three subplots in one
+#-------------------------------------
+
+# Net Surface Flux
+
+fig, axs = plt.subplots(3, 1, sharex=True, figsize=[13,12])
+for i, df, coord, name in zip(range(3), obs_dfs, station_coords, station_names): 
+    #Plot observations
+    obs = (df['SWD [W/m**2]'] + df['LWD [W/m**2]'] - df['SWU [W/m**2]'] - df['LWU [W/m**2]']).loc["2007-04":"2010-03"]
+    obs.plot(label='Observed', color='black', ax=axs[i], linewidth=2)
+    #Plot uncertainty
+    axs[i].fill_between(np.arange(36), obs - obs*(0.095), obs + obs*(0.095), color='black', alpha=0.1)
+    #Plot model
+    axs[i].plot(np.arange(36),(A21['FSNS'] - A21['FLNS']).sel(lat=coord[0], lon=coord[1], method='nearest'), label='A21', color='tab:orange', linewidth=2 )
+    axs[i].plot(np.arange(36),(M92['FSNS'] - M92['FLNS']).sel(lat=coord[0], lon=coord[1], method='nearest'), label='M92', color='tab:blue',linewidth=2, linestyle='--' )
+
+    axs[i].set_title(name)
+    if i==0:
+        axs[i].legend(loc='upper center', bbox_to_anchor=(0.5, 1.45),ncol=3)
+    axs[i].set_ylabel(r'W/m$^2$')
+    axs[i].set_xlabel('')
+    axs[i].set_xticks(np.arange(1, 38, 4))
+    axs[i].grid(alpha=0.5)
+    axs[i].tick_params('x',labelrotation=45)
+
+fig.savefig(wpath+'pdf/stations_all_net.pdf', bbox_inches="tight")
+fig.savefig(wpath+'png/stations_all_net.png', bbox_inches="tight")
+
+plt.clf()
+
+# Downwelling Longwave Flux at Surface
+
+fig, axs = plt.subplots(3, 1, sharex=True, figsize=[13,12])
+for i, df, coord, name in zip(range(3), obs_dfs, station_coords, station_names): 
+    #Plot observations
+    obs = df['LWD [W/m**2]'].loc["2007-04":"2010-03"]
+    obs.plot(label='Observed', color='black', ax=axs[i], linewidth=2)
+    #Plot uncertainty
+    axs[i].fill_between(np.arange(36), obs - obs*(0.02), obs + obs*(0.02), color='black', alpha=0.1)
+    #Plot model
+    axs[i].plot(np.arange(36),M92['FLDS'].sel(lat=coord[0], lon=coord[1], method='nearest'), label='M92', color='tab:blue',linewidth=2 )
+    axs[i].plot(np.arange(36),A21['FLDS'].sel(lat=coord[0], lon=coord[1], method='nearest'), label='A21', color='tab:orange',linewidth=2 )
+
+    axs[i].set_title(name)
+    if i==0:
+        axs[i].legend()
+    axs[i].set_ylabel(r'W/m$^2$')
+    axs[i].set_xlabel('')
+    axs[i].set_xticks(np.arange(1, 38, 4))
+    axs[i].grid(alpha=0.5)
+axs[2].tick_params(axis='x', labelrotation=45)
+fig.savefig(wpath+'pdf/stations_lwd.pdf', bbox_inches="tight")
+fig.savefig(wpath+'png/stations_lwd.png', bbox_inches="tight")
+
+plt.clf()
+
+# Upwelling Longwave Flux at Surface
+
+fig, axs = plt.subplots(3, 1, sharex=True, figsize=[13,12])
+for i, df, coord, name in zip(range(3), obs_dfs, station_coords, station_names): 
+    #Plot observations
+    obs = df['LWU [W/m**2]'].loc["2007-04":"2010-03"]
+    obs.plot(label='Observed', color='black', ax=axs[i], linewidth=2)
+    #Plot uncertainty
+    axs[i].fill_between(np.arange(36), obs - obs*(0.02), obs + obs*(0.02), color='black', alpha=0.1)
+    #Plot model
+    axs[i].plot(np.arange(36),(M92['FLNS']+M92['FLDS']).sel(lat=coord[0], lon=coord[1], method='nearest'), label='M92', color='tab:blue',linewidth=2 )
+    axs[i].plot(np.arange(36),(A21['FLNS']+A21['FLDS']).sel(lat=coord[0], lon=coord[1], method='nearest'), label='A21', color='tab:orange',linewidth=2 )
+
+    axs[i].set_title(name)
+    if i==0:
+        axs[i].legend()
+    axs[i].set_ylabel(r'W/m$^2$')
+    axs[i].set_xlabel('')
+    axs[i].set_xticks(np.arange(1, 38, 4))
+    axs[i].grid(alpha=0.5)
+axs[2].tick_params(axis='x', labelrotation=45)
+fig.savefig(wpath+'pdf/stations_lwu.pdf', bbox_inches="tight")
+fig.savefig(wpath+'png/stations_lwu.png', bbox_inches="tight")
+
+plt.clf()
+
+# Net Longwave Flux
+
+fig, axs = plt.subplots(3, 1, sharex=True, figsize=[13,12])
+for i, df, coord, name in zip(range(3), obs_dfs, station_coords, station_names): 
+    #Plot observations
+    obs = (df['LWD [W/m**2]'] - df['LWU [W/m**2]']).loc["2007-04":"2010-03"]
+    obs.plot(label='Observed', color='black', ax=axs[i], linewidth=2)
+    #Plot uncertainty
+    axs[i].fill_between(np.arange(36), obs - obs*(0.095), obs + obs*(0.095), color='black', alpha=0.1)
+    #Plot model
+    axs[i].plot(np.arange(36),(-M92['FLNS']).sel(lat=coord[0], lon=coord[1], method='nearest'), label='M92', color='tab:blue',linewidth=2 )
+    axs[i].plot(np.arange(36),(-A21['FLNS']).sel(lat=coord[0], lon=coord[1], method='nearest'), label='A21', color='tab:orange', linewidth=2 )
+
+    axs[i].set_title(name)
+    if i==0:
+        axs[i].legend()
+    axs[i].set_ylabel(r'W/m$^2$')
+    axs[i].set_xlabel('')
+    axs[i].set_xticks(np.arange(1, 38, 4))
+    axs[i].grid(alpha=0.5)
+    axs[i].tick_params('x',labelrotation=45)
+
+fig.savefig(wpath+'pdf/stations_lw_net.pdf', bbox_inches="tight")
+fig.savefig(wpath+'png/stations_lw_net.png', bbox_inches="tight")
+
+plt.clf()
 
 
-### ALERT
+# Downwelling Shortwave Flux at Surface
+
+fig, axs = plt.subplots(3, 1, sharex=True, figsize=[13,12])
+for i, df, coord, name in zip(range(3), obs_dfs, station_coords, station_names): 
+    #Plot observations
+    obs = df['SWD [W/m**2]'].loc["2007-04":"2010-03"]
+    obs.plot(label='Observed', color='black', ax=axs[i], linewidth=2)
+    #Plot uncertainty
+    axs[i].fill_between(np.arange(36), obs - obs*(0.02), obs + obs*(0.02), color='black', alpha=0.1)
+    #Plot model
+    axs[i].plot(np.arange(36),M92['FSDS'].sel(lat=coord[0], lon=coord[1], method='nearest'), label='M92', color='tab:blue',linewidth=2 )
+    axs[i].plot(np.arange(36),A21['FSDS'].sel(lat=coord[0], lon=coord[1], method='nearest'), label='A21', color='tab:orange',linewidth=2 )
+
+    axs[i].set_title(name)
+    if i==0:
+        axs[i].legend()
+    axs[i].set_ylabel(r'W/m$^2$')
+    axs[i].set_xticks(np.arange(1, 38, 4))
+    axs[i].set_xlabel('')
+    axs[i].grid(alpha=0.5)
+axs[2].tick_params(axis='x', labelrotation=45)
+fig.savefig(wpath+'pdf/stations_swd.pdf', bbox_inches="tight")
+fig.savefig(wpath+'png/stations_swd.png', bbox_inches="tight")
+
+plt.clf()
+
+# Upwelling Shortwave Flux at Surface
+
+fig, axs = plt.subplots(3, 1, sharex=True, figsize=[13,12])
+for i, df, coord, name in zip(range(3), obs_dfs, station_coords, station_names): 
+    #Plot observations
+    obs = df['SWU [W/m**2]'].loc["2007-04":"2010-03"]
+    obs.plot(label='Observed', color='black', ax=axs[i], linewidth=2)
+    #Plot uncertainty
+    axs[i].fill_between(np.arange(36), obs - obs*(0.02), obs + obs*(0.02), color='black', alpha=0.1)
+    #Plot model
+    axs[i].plot(np.arange(36),-(M92['FSNS']-M92['FSDS']).sel(lat=coord[0], lon=coord[1], method='nearest'), label='M92', color='tab:blue',linewidth=2 )
+    axs[i].plot(np.arange(36),-(A21['FSNS']-A21['FSDS']).sel(lat=coord[0], lon=coord[1], method='nearest'), label='A21', color='tab:orange',linewidth=2 )
+
+    axs[i].set_title(name)
+    if i==0:
+        axs[i].legend()
+    axs[i].set_ylabel(r'W/m$^2$')
+    axs[i].set_xlabel('')
+    axs[i].set_xticks(np.arange(1, 38, 4))
+    axs[i].grid(alpha=0.5)
+axs[2].tick_params(axis='x', labelrotation=45)
+fig.savefig(wpath+'pdf/stations_swu.pdf', bbox_inches="tight")
+fig.savefig(wpath+'png/stations_swu.png', bbox_inches="tight")
+
+plt.clf()
+
+# Surface Temperature
+
+fig, axs = plt.subplots(3, 1, sharex=True, figsize=[13,12])
+for i, df, coord, name in zip(range(3), obs_dfs, station_coords, station_names): 
+    #Plot observations
+    obs = df['T2 [°C]'].loc["2007-04":"2010-03"]
+    obs.plot(label='Observed', color='black', ax=axs[i], linewidth=2)
+    #Plot uncertainty
+    axs[i].fill_between(np.arange(36), obs - obs*(0.02), obs + obs*(0.02), color='black', alpha=0.1)
+    #Plot model
+    axs[i].plot(np.arange(36),M92['TREFHT'].sel(lat=coord[0], lon=coord[1], method='nearest'), label='M92', color='tab:blue',linewidth=2 )
+    axs[i].plot(np.arange(36),A21['TREFHT'].sel(lat=coord[0], lon=coord[1], method='nearest'), label='A21', color='tab:orange',linewidth=2 )
+
+    axs[i].set_title(name)
+    if i==0:
+        axs[i].legend()
+    axs[i].set_ylabel(r'$^{\circ}$C')
+    axs[i].set_xlabel('')
+    axs[i].set_xticks(np.arange(1, 38, 4))
+    axs[i].grid(alpha=0.5)
+#axs[2].set_xticks(np.arange(1, 38, 4))#, ['2007-05', '2007-09', '2008-01', '2008-05', '2008-09', '2009-01', '2009-05', '2009-09', '2010-01', '2010-05'])
+axs[2].tick_params(axis='x', labelrotation=45)
+fig.savefig(wpath+'pdf/stations_T2.pdf', bbox_inches="tight")
+fig.savefig(wpath+'png/stations_T2.png', bbox_inches="tight")
+
+plt.clf()
+
+
+#-------------------------------------
+# Plots for individual stations
+#-------------------------------------
 """
-# Solar flux
+for df, coord, name in zip(obs_dfs, station_coords, station_names):
 
-plt.figure()
-plt.suptitle("Alert: Net incoming solar flux at surface")
-#plt.plot(A21.time, ALE_df['SWD [W/m**2]'].loc["2007-04":"2010-03"], label='Alert station', color='black')
-(ALE_df['SWD [W/m**2]'] - ALE_df['SWU [W/m**2]']).loc["2007-04":"2010-03"].plot(label='Alert station', color='black')
-#plt.plot(ceres_Aavg.time, ceres_Aavg['toa_lw_all_mon']+se_toa_lw_all, color='tab:blue', linestyle='--')
-#plt.plot(ceres_Aavg.time, ceres_Aavg['toa_lw_all_mon']-se_toa_lw_all, color='tab:blue', linestyle='--')
-plt.plot(ALE_df.index[32:68],A21['FSNS'].sel(lat=ALE_lat, lon=ALE_lon, method='nearest'), label='A21', color='tab:orange' )
-plt.plot(ALE_df.index[32:68],M92['FSNS'].sel(lat=ALE_lat, lon=ALE_lon, method='nearest'), label='M92', color='tab:green' )
-plt.legend()
-plt.xticks(rotation=45, ha='right')
-plt.ylabel(r'W/m$^2$')
-plt.savefig(fig_path+'alert_sw_net.png')
+    # Net Shortwave Flux
 
-# Longwave flux
+    plt.figure(figsize=[13,4])
+    plt.suptitle(name + ": Net Incoming Shortwave Flux at Surface")
+    #Plot observations
+    obs = (df['SWD [W/m**2]'] - df['SWU [W/m**2]']).loc["2007-04":"2010-03"]
+    obs.plot(label='Observed', color='black')
+    #Plot uncertainty
+    plt.plot(np.arange(36), obs + obs*(0.055), color='black', linestyle='--')
+    plt.plot(np.arange(36), obs - obs*(0.055), color='black', linestyle='--')
+    #Plot model
+    plt.plot(np.arange(36),M92['FSNS'].sel(lat=coord[0], lon=coord[1], method='nearest'), label='M92', color='tab:blue' )
+    plt.plot(np.arange(36),A21['FSNS'].sel(lat=coord[0], lon=coord[1], method='nearest'), label='A21', color='tab:orange' )
+    
+    plt.legend()
+    plt.xticks(rotation=45, ha='right')
+    plt.ylabel(r'W/m$^2$')
+    plt.xlabel('')
+    plt.grid(alpha=0.5)
 
-plt.figure()
-plt.suptitle("Alert: Net outgoing longwave flux at surface")
-(ALE_df['LWU [W/m**2]'] - ALE_df['LWD [W/m**2]']).loc["2007-04":"2010-03"].plot(label='Alert station', color='black')
-#plt.plot(ceres_Aavg.time, ceres_Aavg['toa_lw_all_mon']+se_toa_lw_all, color='tab:blue', linestyle='--')
-#plt.plot(ceres_Aavg.time, ceres_Aavg['toa_lw_all_mon']-se_toa_lw_all, color='tab:blue', linestyle='--')
-plt.plot(ALE_df.index[32:68],A21['FLNS'].sel(lat=ALE_lat, lon=ALE_lon, method='nearest'), label='A21', color='tab:orange' )
-plt.plot(ALE_df.index[32:68],M92['FLNS'].sel(lat=ALE_lat, lon=ALE_lon, method='nearest'), label='M92', color='tab:green' )
-plt.legend()
-plt.xticks(rotation=45, ha='right')
-plt.ylabel(r'W/m$^2$')
-plt.savefig(fig_path+'alert_lw_net.png')
+    plt.savefig(wpath+'pdf/'+name+'_sw_net.pdf', bbox_inches="tight")
+    plt.savefig(wpath+'png/'+name+'_sw_net.png', bbox_inches="tight")
 
-# Net flux at suface
+    plt.clf()
 
-plt.figure()
-plt.suptitle("Alert: Net flux at surface")
-(ALE_df['SWD [W/m**2]'] + ALE_df['LWD [W/m**2]'] - ALE_df['SWU [W/m**2]'] - ALE_df['LWU [W/m**2]']).loc["2007-04":"2010-03"].plot(label='Alert station', color='black')
-#plt.plot(ceres_Aavg.time, ceres_Aavg['toa_lw_all_mon']+se_toa_lw_all, color='tab:blue', linestyle='--')
-#plt.plot(ceres_Aavg.time, ceres_Aavg['toa_lw_all_mon']-se_toa_lw_all, color='tab:blue', linestyle='--')
-plt.plot(ALE_df.index[32:68],(A21['FSNS'] - A21['FLNS']).sel(lat=ALE_lat, lon=ALE_lon, method='nearest'), label='A21', color='tab:orange' )
-plt.plot(ALE_df.index[32:68],(M92['FSNS'] - M92['FLNS']).sel(lat=ALE_lat, lon=ALE_lon, method='nearest'), label='M92', color='tab:green' )
-plt.legend()
-plt.xticks(rotation=45, ha='right')
-plt.ylabel(r'W/m$^2$')
-plt.savefig(fig_path+'alert_net_flux.png')
+    # Net Longwave Flux
 
-### NY-ÅLESUND
+    plt.figure(figsize=[13,4])
+    plt.suptitle(name + ": Net Outgoing Longwave Flux at Surface")
+    #Plot observations
+    obs = (df['LWU [W/m**2]'] - df['LWD [W/m**2]']).loc["2007-04":"2010-03"]
+    obs.plot(label='Observed', color='black')
+    #Plot uncertainty
+    plt.plot(np.arange(36), obs + obs*(0.04), color='black', linestyle='--')
+    plt.plot(np.arange(36), obs - obs*(0.04), color='black', linestyle='--')
+    #Plot model
+    plt.plot(np.arange(36),M92['FLNS'].sel(lat=coord[0], lon=coord[1], method='nearest'), label='M92', color='tab:blue' )
+    plt.plot(np.arange(36),A21['FLNS'].sel(lat=coord[0], lon=coord[1], method='nearest'), label='A21', color='tab:orange' )
+    
+    plt.legend()
+    plt.xticks(rotation=45, ha='right')
+    plt.ylabel(r'W/m$^2$')
+    plt.xlabel('')
+    plt.grid(alpha=0.5)
 
-# Solar flux
+    plt.savefig(wpath+'pdf/'+name+'_lw_net.pdf', bbox_inches="tight")
+    plt.savefig(wpath+'png/'+name+'_lw_net.png', bbox_inches="tight")
 
-plt.figure()
-plt.suptitle("Ny-Ålesund: Net incoming solar flux at surface")
-#plt.plot(A21.time, ALE_df['SWD [W/m**2]'].loc["2007-04":"2010-03"], label='Alert station', color='black')
-(NYA_df['SWD [W/m**2]'] - NYA_df['SWU [W/m**2]']).loc["2007-04":"2010-03"].plot(label='NyA station', color='black')
-#plt.plot(ceres_Aavg.time, ceres_Aavg['toa_lw_all_mon']+se_toa_lw_all, color='tab:blue', linestyle='--')
-#plt.plot(ceres_Aavg.time, ceres_Aavg['toa_lw_all_mon']-se_toa_lw_all, color='tab:blue', linestyle='--')
-plt.plot(NYA_df.index[32:68],A21['FSNS'].sel(lat=NYA_lat, lon=NYA_lon, method='nearest'), label='A21', color='tab:orange' )
-plt.plot(NYA_df.index[32:68],M92['FSNS'].sel(lat=NYA_lat, lon=NYA_lon, method='nearest'), label='M92', color='tab:green' )
-plt.legend()
-plt.xticks(rotation=45, ha='right')
-plt.ylabel(r'W/m$^2$')
-plt.savefig(fig_path+'nya_sw_net.png')
+    plt.clf()
 
-# Longwave flux
+    # Downwelling Longwave Flux
 
-plt.figure()
-plt.suptitle("Ny-Ålesund: Net outgoing longwave flux at surface")
-(NYA_df['LWU [W/m**2]'] - NYA_df['LWD [W/m**2]']).loc["2007-04":"2010-03"].plot(label='NyA station', color='black')
-#plt.plot(ceres_Aavg.time, ceres_Aavg['toa_lw_all_mon']+se_toa_lw_all, color='tab:blue', linestyle='--')
-#plt.plot(ceres_Aavg.time, ceres_Aavg['toa_lw_all_mon']-se_toa_lw_all, color='tab:blue', linestyle='--')
-plt.plot(NYA_df.index[32:68],A21['FLNS'].sel(lat=NYA_lat, lon=NYA_lon, method='nearest'), label='A21', color='tab:orange' )
-plt.plot(NYA_df.index[32:68],M92['FLNS'].sel(lat=NYA_lat, lon=NYA_lon, method='nearest'), label='M92', color='tab:green' )
-plt.legend()
-plt.xticks(rotation=45, ha='right')
-plt.ylabel(r'W/m$^2$')
-plt.savefig(fig_path+'nya_lw_net.png')
+    plt.figure(figsize=[13,4])
+    plt.suptitle(name + ": Downwelling Longwave Flux at Surface")
+    #Plot observations
+    obs = df['LWD [W/m**2]'].loc["2007-04":"2010-03"]
+    obs.plot(label='Observed', color='black')
+    #Plot uncertainty
+    plt.plot(np.arange(36), obs + obs*(0.04), color='black', linestyle='--')
+    plt.plot(np.arange(36), obs - obs*(0.04), color='black', linestyle='--')
+    #Plot model
+    plt.plot(np.arange(36),M92['FLDS'].sel(lat=coord[0], lon=coord[1], method='nearest'), label='M92', color='tab:blue' )
+    plt.plot(np.arange(36),A21['FLDS'].sel(lat=coord[0], lon=coord[1], method='nearest'), label='A21', color='tab:orange' )
+    
+    plt.legend()
+    plt.xticks(rotation=45, ha='right')
+    plt.ylabel(r'W/m$^2$')
+    plt.xlabel('')
+    plt.grid(alpha=0.5)
 
-# Net flux at suface
+    plt.savefig(wpath+'pdf/'+name+'_lwd.pdf', bbox_inches="tight")
+    plt.savefig(wpath+'png/'+name+'_lwd.png', bbox_inches="tight")
 
-plt.figure()
-plt.suptitle("Ny-Ålesund: Net flux at surface")
-(NYA_df['SWD [W/m**2]'] + NYA_df['LWD [W/m**2]'] - NYA_df['SWU [W/m**2]'] - NYA_df['LWU [W/m**2]']).loc["2007-04":"2010-03"].plot(label='NyA station', color='black')
-#plt.plot(ceres_Aavg.time, ceres_Aavg['toa_lw_all_mon']+se_toa_lw_all, color='tab:blue', linestyle='--')
-#plt.plot(ceres_Aavg.time, ceres_Aavg['toa_lw_all_mon']-se_toa_lw_all, color='tab:blue', linestyle='--')
-plt.plot(NYA_df.index[32:68],(A21['FSNS'] - A21['FLNS']).sel(lat=NYA_lat, lon=NYA_lon, method='nearest'), label='A21', color='tab:orange' )
-plt.plot(NYA_df.index[32:68],(M92['FSNS'] - M92['FLNS']).sel(lat=NYA_lat, lon=NYA_lon, method='nearest'), label='M92', color='tab:green' )
-plt.legend()
-plt.xticks(rotation=45, ha='right')
-plt.ylabel(r'W/m$^2$')
-plt.savefig(fig_path+'nya_net_flux.png')
+    plt.clf()
 
+    # Net Surface Flux
 
-### BARROW
+    plt.figure(figsize=[13,4])
+    plt.suptitle(name + ": Net Incoming Flux at Surface")
+    #Plot observations
+    obs = (df['SWD [W/m**2]'] + df['LWD [W/m**2]'] - df['SWU [W/m**2]'] - df['LWU [W/m**2]']).loc["2007-04":"2010-03"]
+    obs.plot(label='Observed', color='black')
+    #Plot uncertainty
+    plt.plot(np.arange(36), obs + obs*(0.095), color='black', linestyle='--')
+    plt.plot(np.arange(36), obs - obs*(0.095), color='black', linestyle='--')
+    #Plot model
+    plt.plot(np.arange(36),(M92['FSNS'] - M92['FLNS']).sel(lat=coord[0], lon=coord[1], method='nearest'), label='M92', color='tab:blue' )
+    plt.plot(np.arange(36),(A21['FSNS'] - A21['FLNS']).sel(lat=coord[0], lon=coord[1], method='nearest'), label='A21', color='tab:orange' )
+    
+    plt.legend()
+    plt.xticks(rotation=45, ha='right')
+    plt.ylabel(r'W/m$^2$')
+    plt.xlabel('')
+    plt.grid(alpha=0.5)
 
+    plt.savefig(wpath+'pdf/'+name+'_all_net.pdf', bbox_inches="tight")
+    plt.savefig(wpath+'png/'+name+'_all_net.png', bbox_inches="tight")
 
-# Solar flux
-
-plt.figure()
-plt.suptitle("Utqiaġvik (Barrow): Net incoming solar flux at surface")
-#plt.plot(A21.time, ALE_df['SWD [W/m**2]'].loc["2007-04":"2010-03"], label='Alert station', color='black')
-(BAR_df['SWD [W/m**2]'] - BAR_df['SWU [W/m**2]']).loc["2007-04":"2010-03"].plot(label='Observed', color='black')
-#plt.plot(ceres_Aavg.time, ceres_Aavg['toa_lw_all_mon']+se_toa_lw_all, color='tab:blue', linestyle='--')
-#plt.plot(ceres_Aavg.time, ceres_Aavg['toa_lw_all_mon']-se_toa_lw_all, color='tab:blue', linestyle='--')
-plt.plot(np.arange(36),A21['FSNS'].sel(lat=BAR_lat, lon=BAR_lon, method='nearest'), label='A21', color='tab:orange' )
-plt.plot(np.arange(36),M92['FSNS'].sel(lat=BAR_lat, lon=BAR_lon, method='nearest'), label='M92', color='tab:green' )
-plt.legend()
-plt.xticks(rotation=45, ha='right')
-plt.ylabel(r'W/m$^2$')
-plt.savefig(fig_path+'bar_sw_net.png')
-
-# Longwave flux
-
-plt.figure()
-plt.suptitle("Utqiaġvik (Barrow): Net outgoing longwave flux at surface")
-(BAR_df['LWU [W/m**2]'] - BAR_df['LWD [W/m**2]']).loc["2007-04":"2010-03"].plot(label='Observed', color='black')
-#plt.plot(ceres_Aavg.time, ceres_Aavg['toa_lw_all_mon']+se_toa_lw_all, color='tab:blue', linestyle='--')
-#plt.plot(ceres_Aavg.time, ceres_Aavg['toa_lw_all_mon']-se_toa_lw_all, color='tab:blue', linestyle='--')
-plt.plot(np.arange(36),A21['FLNS'].sel(lat=BAR_lat, lon=BAR_lon, method='nearest'), label='A21', color='tab:orange' )
-plt.plot(np.arange(36),M92['FLNS'].sel(lat=BAR_lat, lon=BAR_lon, method='nearest'), label='M92', color='tab:green' )
-plt.legend()
-plt.xticks(rotation=45, ha='right')
-plt.ylabel(r'W/m$^2$')
-plt.savefig(fig_path+'bar_lw_net.png')
-
-# Net flux at suface
-
-plt.figure()
-plt.suptitle("Utqiaġvik (Barrow): Net flux at surface")
-(BAR_df['SWD [W/m**2]'] + BAR_df['LWD [W/m**2]'] - BAR_df['SWU [W/m**2]'] - BAR_df['LWU [W/m**2]']).loc["2007-04":"2010-03"].plot(label='Observed', color='black')
-#plt.plot(ceres_Aavg.time, ceres_Aavg['toa_lw_all_mon']+se_toa_lw_all, color='tab:blue', linestyle='--')
-#plt.plot(ceres_Aavg.time, ceres_Aavg['toa_lw_all_mon']-se_toa_lw_all, color='tab:blue', linestyle='--')
-plt.plot(np.arange(36),(A21['FSNS'] - A21['FLNS']).sel(lat=BAR_lat, lon=BAR_lon, method='nearest'), label='A21', color='tab:orange' )
-plt.plot(np.arange(36),(M92['FSNS'] - M92['FLNS']).sel(lat=BAR_lat, lon=BAR_lon, method='nearest'), label='M92', color='tab:green' )
-plt.legend()
-plt.xticks(rotation=45, ha='right')
-plt.ylabel(r'W/m$^2$')
-plt.savefig(fig_path+'bar_net_flux.png')
-"""
-### EUREKA
-#Index(['Height [m]', 'SWD [W/m**2]', 'SWD std dev [W/m**2]',
-#       'SWD min [W/m**2]', 'SWD max [W/m**2]', 'DIR [W/m**2]',
-#       'DIR std dev [W/m**2]', 'DIR min [W/m**2]', 'DIR max [W/m**2]',
-#       'DIF [W/m**2]', 'DIF std dev [W/m**2]', 'DIF min [W/m**2]',
-#       'DIF max [W/m**2]', 'LWD [W/m**2]', 'LWD std dev [W/m**2]',
-#       'LWD min [W/m**2]', 'LWD max [W/m**2]'],
-#      dtype='object')
-
-# Solar flux
-
-
-plt.figure()
-plt.suptitle("Eureka: Only incoming solar flux at surface")
-#plt.plot(A21.time, ALE_df['SWD [W/m**2]'].loc["2007-04":"2010-03"], label='Alert station', color='black')
-#(EUR_df['SWD [W/m**2]'] - EUR_df['SWU [W/m**2]']).loc["2007-04":"2010-03"].plot(label='Observed', color='black')
-EUR_df['SWD [W/m**2]'].loc["2007-09":"2010-03"].plot(label='Observed', color='black')
-#plt.plot(ceres_Aavg.time, ceres_Aavg['toa_lw_all_mon']+se_toa_lw_all, color='tab:blue', linestyle='--')
-#plt.plot(ceres_Aavg.time, ceres_Aavg['toa_lw_all_mon']-se_toa_lw_all, color='tab:blue', linestyle='--')
-plt.plot(np.arange(36),A21['FSNS'].sel(lat=EUR_lat, lon=EUR_lon, method='nearest'), label='A21', color='tab:orange' )
-plt.plot(np.arange(36),M92['FSNS'].sel(lat=EUR_lat, lon=EUR_lon, method='nearest'), label='M92', color='tab:green' )
-plt.legend()
-plt.xticks(rotation=45, ha='right')
-plt.ylabel(r'W/m$^2$')
-plt.savefig(fig_path+'eur_sw_net.png')
-"""
-# Longwave flux
-
-plt.figure()
-plt.suptitle("Eureka: Net outgoing longwave flux at surface")
-(NYA_df['LWU [W/m**2]'] - NYA_df['LWD [W/m**2]']).loc["2007-04":"2010-03"].plot(label='Observed', color='black')
-#plt.plot(ceres_Aavg.time, ceres_Aavg['toa_lw_all_mon']+se_toa_lw_all, color='tab:blue', linestyle='--')
-#plt.plot(ceres_Aavg.time, ceres_Aavg['toa_lw_all_mon']-se_toa_lw_all, color='tab:blue', linestyle='--')
-plt.plot(np.arange(36),A21['FLNS'].sel(lat=NYA_lat, lon=NYA_lon, method='nearest'), label='A21', color='tab:orange' )
-plt.plot(np.arange(36),M92['FLNS'].sel(lat=NYA_lat, lon=NYA_lon, method='nearest'), label='M92', color='tab:green' )
-plt.legend()
-plt.xticks(rotation=45, ha='right')
-plt.ylabel(r'W/m$^2$')
-plt.savefig(fig_path+'eur_lw_net.png')
-
-# Net flux at suface
-
-plt.figure()
-plt.suptitle("Eureka: Net flux at surface")
-(NYA_df['SWD [W/m**2]'] + NYA_df['LWD [W/m**2]'] - NYA_df['SWU [W/m**2]'] - NYA_df['LWU [W/m**2]']).loc["2007-04":"2010-03"].plot(label='Observed', color='black')
-#plt.plot(ceres_Aavg.time, ceres_Aavg['toa_lw_all_mon']+se_toa_lw_all, color='tab:blue', linestyle='--')
-#plt.plot(ceres_Aavg.time, ceres_Aavg['toa_lw_all_mon']-se_toa_lw_all, color='tab:blue', linestyle='--')
-plt.plot(np.arange(36),(A21['FSNS'] - A21['FLNS']).sel(lat=NYA_lat, lon=NYA_lon, method='nearest'), label='A21', color='tab:orange' )
-plt.plot(np.arange(36),(M92['FSNS'] - M92['FLNS']).sel(lat=NYA_lat, lon=NYA_lon, method='nearest'), label='M92', color='tab:green' )
-plt.legend()
-plt.xticks(rotation=45, ha='right')
-plt.ylabel(r'W/m$^2$')
-plt.savefig(fig_path+'eur_net_flux.png')
+    plt.clf()
 """

@@ -15,13 +15,14 @@ date = "2007-04-15_2010-03-15"
 # Two-dimensional fields
 #------------------------------
 
-var = "ICEFRAC"
-ds = xr.open_dataset(rpath+var+"_"+case+"_"+date+".nc")
-ds = ds.groupby("time.season").mean("time")
+ds_ocn = xr.open_dataset(rpath+"OCNFRAC"+"_"+case+"_"+date+".nc")
 
-MIZ_EDGE = np.ones((len(ds.season), len(ds.lon)))*90
-PI_EDGE = np.ones((len(ds.season), len(ds.lon)))*90
-
+open_sea = ds_ocn > 0.85
+open_sea = open_sea.groupby("time.season").mean("time")
+print(open_sea)
+open_sea = open_sea >= 0.5
+print(open_sea)
+quit()
 MIZ_found = False
 PI_found = False
 for n in range(len(ds.season)):

@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 import glob
-import os
 import re
+
 
 ### PANGAEA IDs ###
 # Alert  932867
