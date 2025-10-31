@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import datetime as dt
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import max_error, mean_absolute_error
 from scipy import interpolate, stats
 plt.rcParams['mathtext.fontset'] = 'stix'
 plt.rcParams['font.family'] = 'STIXGeneral'
@@ -93,6 +94,8 @@ r2_score = linreg.score(X,Y)
 print("intercept:", intercept)
 print("slope:", slope)
 print("R-squared score:", r2_score)
+print("Maximum residual error:", max_error(Y, linreg.predict(X)))
+print("Mean absolute error:", mean_absolute_error(Y, linreg.predict(X)))
 
 
 plt.plot(DR1_interpol['temp_degC'], slope*DR1_interpol['temp_degC'] + intercept, color='black',
@@ -100,3 +103,4 @@ plt.plot(DR1_interpol['temp_degC'], slope*DR1_interpol['temp_degC'] + intercept,
 plt.grid(alpha=0.5)
 plt.legend()
 plt.savefig(wpath+"Tcal.png", bbox_inches="tight")
+

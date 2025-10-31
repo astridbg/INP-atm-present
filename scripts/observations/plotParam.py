@@ -8,11 +8,13 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 from Meyers import meyers
 import functions
+from cmcrameri import cm
 
 path = "/projects/NS9600K/astridbg/data/observations/Coriolis_postprocessed/"
 fname1 = "Coriolis_nucleiT_cal.csv"
 fname2 = "Coriolis_nucleiOut_std.csv"
 wpath = "/projects/NS9600K/astridbg/INP-atm-present/figures/observations/"
+comble_path = "/projects/NS9600K/astridbg/data/observations/COMBLE_INP_DATA_2.csv"
 
 
 nucleiT = pd.read_csv(path+fname1, index_col=0)
@@ -60,6 +62,8 @@ print("Without outlier:")
 print(slope_ex)
 print(intercept_ex)
 print(functions.rsquared(X_ex,np.log(Y_ex)))
+slope_ex = -0.342 
+intercept_ex = -10.105
 
 #-------------------------------
 # Other parameterizations
@@ -75,36 +79,60 @@ plt.figure(figsize=(8,6),dpi=300)
 plt.grid(alpha=0.5)
 alpha=1
 
+# Plot uncertainty estimate
+err = 0.9
+
+Tmin = []
+Tmax = []
+for j in range(95):
+    Tmin.append(nucleiT.iloc[j,:].min()-err)
+    Tmax.append(nucleiT.iloc[j,:].nlargest(2).min()+err)
+conc = []
+conc.append(nucleiOut.iloc[0,:].max())
+for j in range(1,94):
+    conc.append(nucleiOut.iloc[j,:].mean())
+conc.append(nucleiOut.iloc[94,:].min())
+plt.fill_betweenx(conc, Tmin, Tmax, color="lightblue", alpha=0.7)
+
 # Plot excluding outlier sample
 for i in range(0, outlier_sample):
-    plt.scatter(nucleiT.iloc[:,i],nucleiOut.iloc[:,i], alpha = alpha, color="none", edgecolor="cornflowerblue")
+    plt.scatter(nucleiT.iloc[:,i],nucleiOut.iloc[:,i], alpha = alpha, color="none", edgecolor="cornflowerblue",s=15)
+#    plt.errorbar(nucleiT.iloc[:,i],nucleiOut.iloc[:,i], fmt='o', errorevery=2, color="none", alpha = 0.3, ecolor="cornflowerblue",xerr=0.9,yerr=0)
     alpha -= 0.01
 for i in range(outlier_sample+1, nCor):
-    plt.scatter(nucleiT.iloc[:,i],nucleiOut.iloc[:,i], alpha = alpha, color="none", edgecolor="cornflowerblue")
+    plt.scatter(nucleiT.iloc[:,i],nucleiOut.iloc[:,i], alpha = alpha, color="none", edgecolor="cornflowerblue",s=15)
+    #plt.errorbar(nucleiT.iloc[:,i],nucleiOut.iloc[:,i], alpha = alpha, color="cornflowerblue", xerr=0.9, yerr=None)
+  #  plt.errorbar(nucleiT.iloc[:,i],nucleiOut.iloc[:,i], fmt='o', errorevery=2,color="none", alpha = 0.3, ecolor="cornflowerblue",xerr=0.9,yerr=0)
     alpha -= 0.01
+
+# Read COMBLE data
+comble_data = pd.read_csv(comble_path)
+plt.scatter(comble_data.iloc[:,0], comble_data.iloc[:,1],color='grey',s=10,alpha=0.8,marker="x")
 
 plt.yscale("log")
 plt.ylim(10**(-4.3),10**(1.8))
-plt.xlim(-30,-2)
-x = np.linspace(-30,-2,100)
+plt.xlim(-36,-2)
+x = np.linspace(-36,-2,100)
 # Plot parameterization without outlier 
 plt.plot(x, np.exp(intercept_ex + slope_ex*x), linewidth=4, color="orange",
         label="\n Andenes 2021, \n exp("+str(round(intercept_ex,3))+" - "+str(round(np.sign(slope_ex)*slope_ex,3))+r"$\times T$)")
 # Plot Meyers
-plt.plot(x, meyers(x), linewidth=3, color="red",label="Meyers et al. (1992)",linestyle="dotted")
+plt.plot(x, meyers(x), linewidth=3, label="Meyers et al. (1992)",linestyle="dotted", color="red")
+# Plot COMBLE data
+plt.scatter(comble_data.iloc[0,0], comble_data.iloc[0,1], s=10,alpha=0.8,marker="x", label='Geerts et al. (2022), Andøy', color="grey")
 # Plot Li and Wieder, with extra one to move legend name
 plt.plot(x, np.exp(intercept_L_W + slope_L_W*x),linewidth=3,linestyle="dashdot",color="#ffffff",
         label=" ")
-plt.plot(x, np.exp(intercept_L_W + slope_L_W*x),linewidth=3,linestyle="dashdot",color="darkblue",
+plt.plot(x, np.exp(intercept_L_W + slope_L_W*x),linewidth=3,linestyle="dashdot", color="darkblue",
         label="Li et al. (2023), Ny-Ålesund")
 # Plot Sze study, winter and summer
-plt.plot(x, 2.111*10**(-4)*np.exp(-0.263*x),linewidth=3,linestyle="dashed",color="tab:green",
+plt.plot(x, 2.111*10**(-4)*np.exp(-0.263*x),linewidth=3,linestyle="dashed", color="springgreen",
         label="Sze et al. (2023), Greenland summer")
-plt.plot(x, 4.711*10**(-7)*np.exp(-0.492*x),linewidth=3,linestyle="dashed",color="darkviolet",
+plt.plot(x, 4.711*10**(-7)*np.exp(-0.492*x),linewidth=3,linestyle="dashed", color="darkviolet",
         label="Sze et al. (2023), Greenland winter")
 plt.plot(x, np.exp(intercept_ex + slope_ex*x), linewidth=4, color="orange")
-plt.xlabel(r"Temperature $T$ [$^{\circ}$C]")
-plt.ylabel(r"INP concentration [#/L$_{std}$]")
+plt.xlabel(r"Temperature $T$, $^{\circ}$C")
+plt.ylabel(r"INP concentration, L$^{-1}$")
 
 # Shrink current axis's height by 10% on the bottom
 ax = plt.gca()
@@ -115,6 +143,6 @@ ax.set_position([box.x0, box.y0 + box.height * 0.1,
 # Put a legend below current axis
 ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=2)#,borderpad=0.3, columnspacing=0.3, handletextpad=0.2)
 
-plt.savefig(wpath+"pdf/INPconc_param.pdf",bbox_inches="tight")
-plt.savefig(wpath+"png/INPconc_param.png",bbox_inches="tight")
+#plt.savefig(wpath+"pdf/INPconc_param.pdf",bbox_inches="tight")
+plt.savefig(wpath+"png/INPconc_param_extended.png",bbox_inches="tight")
 

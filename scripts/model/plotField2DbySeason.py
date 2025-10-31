@@ -17,15 +17,16 @@ wpath="/projects/NS9600K/astridbg/INP-atm-present/figures/model/spatial/"
 
 # Case ------------------------
 #case = "def_20210126"; casenm = "CAM6"
-case = "meyers92_20220210"; casenm = "M92"
+#case = "meyers92_20220210"; casenm = "M92"
 #case = "andenes21_20220222"; casenm = "A21"
-#case = "M92_20240522"; casenm="M92"
+#case = "M92_20240612"; casenm="M92"
+case = "A21_20240612"; casenm="A21"
 #------------------------------	
 date = "2007-04-15_2010-03-15"
 #------------------------------
 # Add seasonal open ocean mask
 #------------------------------
-ocean_mask = False
+ocean_mask = True
 if ocean_mask:
     ds_ocn = xr.open_dataset(rpath+"OCNFRAC"+"_"+case+"_"+date+".nc")
     open_sea = ds_ocn > 0.85
@@ -38,12 +39,13 @@ if ocean_mask:
 #------------------------------
 
 variables = ["SWCF","LWCF","SWCFS","LWCFS","NETCFS","CLDTOT","CLDHGH","CLDMED","CLDLOW","TGCLDIWP","TGCLDLWP","TREFHT"]
-variables = ["TGCLDIWP"]
+variables = ["TGCLDTWP"]
+colorbar_extents = [150]
 
 #------------------------------
 # Shaping and plotting fields
 #------------------------------
-for var in variables:
+for var, extent in zip(variables, colorbar_extents):
     print(var)
     ds = xr.open_dataset(rpath+var+"_"+case+"_"+date+".nc")
 
@@ -54,12 +56,13 @@ for var in variables:
     # Group cases by season and mean over the period by season
     ds_seas = ds.groupby("time.season").mean("time")
 
-    lev_extent = round(np.max(ds_seas[var].sel(lat=slice(66.5,90)).values),10)
-    print(lev_extent)
-    if lev_extent < 0.004:
-        lev_extent = 0.004
-    levels = np.linspace(0,lev_extent,25)
-
+    lev_extent = round(max(abs(np.min(ds[var].sel(lat=slice(66.5,90)).values)), 
+                           abs(np.max(ds[var].sel(lat=slice(66.5,90)).values))),2)
+    print("Maximum absolute change: ", lev_extent, " Colorbar extent: ", extent)
+    #if lev_extent < 0.004:
+    #    lev_extent = 0.004
+    #lev_extent = 10
+    levels = np.linspace(0,extent,25)
 
     fig = plt.figure(1, figsize=[9,10],dpi=300)
     title = ds[var].long_name+"\n"+casenm+"\n"
@@ -71,17 +74,17 @@ for var in variables:
     ax3 = plt.subplot(2, 2, 3, projection=ccrs.Orthographic(0, 90))
     ax4 = plt.subplot(2, 2, 4, projection=ccrs.Orthographic(0, 90))
 
-    for ax,season in zip([ax1, ax2, ax3, ax4], ["DJF", "MAM","JJA","SON"]):
+    for ax,season,label in zip([ax1, ax2, ax3, ax4], ["DJF", "MAM","JJA","SON"], ["(a)", "(b)", "(c)", "(d)"]):
     	
         functions.polarCentral_set_latlim([66.5,90], ax)
         map = ds_seas[var].sel(season=season).plot.pcolormesh(ax=ax, transform=ccrs.PlateCarree(), 
-                                           cmap=plt.cm.get_cmap("Reds"),#cmap=plt.cm.get_cmap('Blues').reversed() 
+                                           cmap=plt.cm.get_cmap('Blues'),#.reversed() #cmap=plt.cm.get_cmap("Reds")
                                            levels=levels,
                                            add_colorbar=False)
 
         if ocean_mask:
             ax.contourf(open_sea.lon, open_sea.lat, open_sea["OCNFRAC"].sel(season=season), transform=ccrs.PlateCarree(), colors='none',hatches=['..'],levels=[.5, 1.5])
-        ax.set_title(season, fontsize=22)
+        ax.set_title(label+" "+season, fontsize=22)
         ax.coastlines()
 
 	

@@ -17,10 +17,13 @@ wpath="/projects/NS9600K/astridbg/INP-atm-present/figures/model/spatavg_reldiff/
 
 # Default cases----------------
 #case1 = "def_20210126"; case1nm = "CAM6"
-case1 = "meyers92_20220210"; case1nm = "M92"
+#case1 = "meyers92_20220210"; case1nm = "M92"
+case1 = "M92_20240612"; case1nm = "M92"
+
 # Modified cases---------------
 #case2 = "meyers92_20220210"; case2nm = "CAM5"
-case2 = "andenes21_20220222"; case2nm = "A21"
+#case2 = "andenes21_20220222"; case2nm = "A21"
+case2 = "A21_20240612"; case1nm = "A21"
 #------------------------------	
 date1 = "2007-04-15_2010-03-15"
 date2 = "2007-04-15_2010-03-15"
@@ -39,7 +42,7 @@ npole = [[0,360],[85,90]] # North Pole
 #------------------------------
 
 variables = ["SWCF","LWCF","SWCFS","LWCFS","CLDTOT","CLDHGH","CLDMED","CLDLOW","TGCLDIWP","TGCLDLWP","TREFHT", "NETCFS"]
-variables = ["CLDTOT", "CLDLOW"]
+variables = ["TGCLDLWP"]
 
 """
 #------------------------------
@@ -128,7 +131,9 @@ for var in variables:
     ds1_arct = computeWeightedMean(ds1m[var].sel(lat=slice(66.5,90)))
     ds2_arct = computeWeightedMean(ds2m[var].sel(lat=slice(66.5,90)))
     print("Arctic")
-    print((ds2_arct-ds1_arct).mean("month").values)
+    print("Difference",(ds2_arct-ds1_arct).mean("month").values)
+    print("Case 1",ds1_arct.mean("month").values)
+    print("Case 2",ds2_arct.mean("month").values)
 
     # Get values over Ny-Ålesund
     ds1_NYA = ds1m[var].sel(lat=NYA[0], lon=NYA[1], method="nearest")
@@ -150,6 +155,15 @@ for var in variables:
 
     print("North Pole")
     print((ds2_npol-ds1_npol).mean("month").values)
+
+    print("Ny_Ålesund")
+    print((ds2_NYA-ds1_NYA).mean("month").values)
+
+    print("Alert")
+    print((ds2_ALE-ds1_ALE).mean("month").values)
+
+    print("Barrow")
+    print((ds2_BAR-ds1_BAR).mean("month").values)
      
     fig,axs = plt.subplots(ncols=2,nrows=1, gridspec_kw={'width_ratios': [3, 1]}, figsize=[13,4],dpi=300,constrained_layout=True)
     ax = axs[0]

@@ -13,14 +13,23 @@ import datetime
 from functions import *
 
 rpath="/projects/NS9600K/astridbg/data/model/noresm_postprocessed/"
-wpath="/projects/NS9600K/astridbg/INP-atm-present/figures/model/spatavg_reldiff/"
+#wpath="/projects/NS9600K/astridbg/INP-atm-present/figures/model/spatavg_reldiff/"
+wpath="/projects/NS9600K/astridbg/INP-atm-present/figures/model/noresm209/"
+
 
 # Default cases----------------
 #case1 = "def_20210126"; case1nm = "CAM6"
-case1 = "meyers92_20220210"; case1nm = "M92"
+#case1 = "meyers92_20220210"; case1nm = "M92"
+#case1 = "M92_20240612"; case1nm = "M92"
+#case1 = "M92_20241122"; case1nm = "M92"
+case1 = "A21_20240612"; case1nm = "A21"
+
 # Modified cases---------------
 #case2 = "meyers92_20220210"; case2nm = "CAM5"
-case2 = "andenes21_20220222"; case2nm = "A21"
+#case2 = "andenes21_20220222"; case2nm = "A21"
+#case2 = "A21_20240612"; case2nm = "A21"
+#case2 = "A21_20241125"; case2nm = "A21"
+case2 = "Sze23_20250115"; case2nm = "S23"
 #------------------------------	
 date1 = "2007-04-15_2010-03-15"
 date2 = "2007-04-15_2010-03-15"
@@ -38,7 +47,6 @@ npole = [[0,360],[85,90]] # North Pole
 # Pairs of two-dimensional fields
 #------------------------------
 
-variables = ["SWCF","LWCF","SWCFS","LWCFS","CLDTOT","CLDHGH","CLDMED","CLDLOW","TGCLDIWP","TGCLDLWP","TREFHT", "NETCFS"]
 variables = [["TGCLDIWP","TGCLDLWP"], ["SWCFS", "LWCFS"], ["NETCFS", "TREFHT"]]
 
 #------------------------------
@@ -178,6 +186,9 @@ for pair in variables:
     axs[1, 0].legend(loc='upper center', bbox_to_anchor=(0.75, -0.12), ncol=5, columnspacing=0.5, handlelength=1,handletextpad=0.4)
 	
     plt.grid(alpha=0.5)
-    plt.savefig(wpath+"monthlymean/pdf/"+pair[0]+"_"+pair[1]+"_avg_"+case1+"_"+case2+".pdf",bbox_inches="tight")
-    plt.savefig(wpath+"monthlymean/png/"+pair[0]+"_"+pair[1]+"_avg_"+case1+"_"+case2+".png",bbox_inches="tight")
+    #plt.savefig(wpath+"monthlymean/pdf/"+pair[0]+"_"+pair[1]+"_avg_"+case1+"_"+case2+".pdf",bbox_inches="tight")
+    #plt.savefig(wpath+"monthlymean/png/"+pair[0]+"_"+pair[1]+"_avg_"+case1+"_"+case2+".png",bbox_inches="tight")
+    plt.savefig(wpath+"pdf/"+pair[0]+"_"+pair[1]+"_avg_"+case1+"_"+case2+".pdf",bbox_inches="tight")
+    plt.savefig(wpath+"png/"+pair[0]+"_"+pair[1]+"_avg_"+case1+"_"+case2+".png",bbox_inches="tight")
+    plt.clf()
     plt.clf()

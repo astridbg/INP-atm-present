@@ -21,11 +21,16 @@ ann_bulk = xr.open_dataset(folder + data_folder + files_ann[0])
 ann_ct = xr.open_dataset(folder + data_folder + files_ann[1])
 
 # NORESM Data
-folder_n = ['/projects/NS9600K/astridbg/data/model/noresm_rawdata/cases/NF2000climo_f19_tn14_M92_20240522/atm/hist/',
-	    '/projects/NS9600K/astridbg/data/model/noresm_rawdata/cases/NF2000climo_f19_tn14_A21_20240522/atm/hist/']
+case1 = 'NorESM2_3_slf_output_RaFSIP_20250421'; label1 = 'NorESM2.3'
+case2 = 'noresm2_3_slf_output_A21_20250629'; label2 = 'NorESM2.3 A21'
 
-data_n = ['NF2000climo_f19_tn14_M92_20240522.cam.h0*.nc',
-	  'NF2000climo_f19_tn14_A21_20240522.cam.h0*.nc']
+
+folder_n = ['/projects/NS9600K/astridbg/data/model/noresm_rawdata/cases/NF2000climo_f19_tn14_'+case1+'/atm/hist/',
+	    '/projects/NS9600K/astridbg/data/model/noresm_rawdata/cases/NF2000climo_f19_tn14_'+case2+'/atm/hist/']
+
+
+data_n = ['NF2000climo_f19_tn14_'+case1+'.cam.h0*.nc',
+	  'NF2000climo_f19_tn14_'+case2+'.cam.h0*.nc']
 
 def preprocess(ds):
     ds_new = ds[['SLFXCLD_ISOTM', 'CT_SLFXCLD_ISOTM',
@@ -126,14 +131,17 @@ ax.errorbar(x=et_n_ct * 100, y=et_n_ct.isotherm, xerr=std_n_ct * 100,
 
 
 xr.plot.line(case_one_slf.slf_bulk * 100, y='isotherm',
-                label='Bulk M92', ax=ax, lw=2.5, ls='dashed', c='tab:blue')
+                label='Bulk '+label1, ax=ax, lw=2.5, ls='dashed', c='tab:blue')
 xr.plot.line(case_one_slf.slf_ct * 100, y='isotherm',
-                label='Cloud Top M92', ax=ax, lw=2.5, c='tab:blue')
+                label='Cloud Top '+label1, ax=ax, lw=2.5, c='tab:blue')
 
-xr.plot.line(case_two_slf.slf_bulk * 100, y='isotherm',
-                label='Bulk A21', ax=ax, ls='dashed',lw=2.5, c='tab:orange')
-xr.plot.line(case_two_slf.slf_ct * 100, y='isotherm',
-                label='Cloud Top A21', ax=ax, lw=2.5, c='tab:orange')
+
+#xr.plot.line(case_two_slf.slf_bulk * 100, y='isotherm',
+#                label='Bulk '+label2, ax=ax, ls='dashed',lw=2.5, c='tab:orange')
+#xr.plot.line(case_two_slf.slf_ct * 100, y='isotherm',
+#                label='Cloud Top '+label2, ax=ax, lw=2.5, c='tab:orange')
+
+
 ax.invert_yaxis()
 
 sns.despine()
@@ -144,7 +152,7 @@ ax.set_ylabel('Isotherm (C)', fontsize=18)
 fig.subplots_adjust(right=0.6)
 ax.legend(frameon=False, loc="upper left",bbox_to_anchor=(1, 1))
 fig.tight_layout()
+#fig.savefig(
+#    '/projects/NS9600K/astridbg/INP-atm-present/figures/satellite_model_comparison/png/SLF_satellite_'+case1+'_'+case2+'.png')
 fig.savefig(
-    '/projects/NS9600K/astridbg/INP-atm-present/figures/satellite_model_comparison/pdf/SLF_satellite_M92_A21_20240522.pdf')
-fig.savefig(
-    '/projects/NS9600K/astridbg/INP-atm-present/figures/satellite_model_comparison/png/SLF_satellite_M92_A21_20240522.png')
+    '/nird/projects/NS9600K/astridbg/arctic-cld-feedbacks/figures/SLF_satellite_'+case1+'.png')

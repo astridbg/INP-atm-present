@@ -14,13 +14,30 @@ import functions
 
 rpath="/projects/NS9600K/astridbg/data/model/noresm_postprocessed/"
 wpath="/projects/NS9600K/astridbg/INP-atm-present/figures/model/diff_byseason/"
+#wpath="/projects/NS9600K/astridbg/INP-atm-present/figures/model/"
+
 
 # Default cases----------------
-#case1 = "meyers92_20220210"; case1nm = "M92"
-case1 = "M92_20240612"; case1nm = "M92"
+#case1 = "meyers92_20220210"; case1nm = "M92_old"
+#case1 = "M92_20240612"; case1nm = "M92"
+#case1 = "M92_20241118"; case1nm = "M92"
+#case1 = "M92_20241122"; case1nm = "M92"
+case1 = "NorESM2_3_slf_output_20250421"; case1nm = "NorESM2.3"
+#case1 = "NorESM2_3_slf_output_RaFSIP_20250421"; case1nm = "RaFSIP"
+
+
+
 # Modified cases---------------
 #case2 = "andenes21_20220222"; case2nm = "A21"
-case2 = "A21_20240612"; case2nm = "A21"
+#case2 = "A21_20240612"; case2nm = "A21"
+#case2 = "M92_20241118"; case2nm = "M92_new"
+#case2 = "M92_20240612"; case2nm = "M92"
+#case2 = "A21_20241118"; case2nm = "A21"
+#case2 = "Sze23_NoContactFreezing_20250117"; case2nm = "S23"
+#case2 = "NorESM2_3_slf_output_20250421"; case2nm = "NorESM2.3"
+#case2 = "A21_NoContactFreezing_20250117"; case2nm = "A21"
+case2 = "NorESM2_3_slf_output_RaFSIP_20250421"; case2nm = "RaFSIP"
+
 #------------------------------	
 date1 = "2007-04-15_2010-03-15"
 date2 = "2007-04-15_2010-03-15"
@@ -40,8 +57,10 @@ if ocean_mask:
 # Two-dimensional fields
 #------------------------------
 
-variables = ["SWCFS","LWCFS","TGCLDIWP","TGCLDLWP","CLDLWEMS"]
-colorbar_extents = [5, 15, 5, 30, 0.5]
+variables = ["SWCFS","LWCFS","TGCLDIWP","TGCLDLWP","CLDLWEMS", "TGCLDTWP", "PREC","CLDTOT"]
+colorbar_extents = [15, 15, 10, 100, 0.6, 100, 20, 0.2]
+#colorbar_extents = [5, 15, 5, 30, 0.5, 25, 15, 0.05]
+
 
 #------------------------------
 # Shaping and plotting fields
@@ -73,14 +92,15 @@ for var, extent in zip(variables, colorbar_extents):
     fig = plt.figure(1, figsize=[9,10],dpi=300)
     title = ds1[var].long_name+"\n"+case2nm+r"$-$"+case1nm
     #fig.suptitle(title, fontsize=22)
-	
+    
+
     # Set the projection to use for plotting
     ax1 = plt.subplot(2, 2, 1, projection=ccrs.Orthographic(0, 90))
     ax2 = plt.subplot(2, 2, 2, projection=ccrs.Orthographic(0, 90))
     ax3 = plt.subplot(2, 2, 3, projection=ccrs.Orthographic(0, 90))
     ax4 = plt.subplot(2, 2, 4, projection=ccrs.Orthographic(0, 90))
     #plt.subplots_adjust(top=0.85)
-
+    
     for ax,season,label in zip([ax1, ax2, ax3, ax4], ["DJF", "MAM","JJA","SON"], ["(a)", "(b)", "(c)", "(d)"]):
     	
         functions.polarCentral_set_latlim([66.5,90], ax)
@@ -93,9 +113,7 @@ for var, extent in zip(variables, colorbar_extents):
         ax.set_title(label+" "+season, fontsize=22)
         ax.coastlines()
 
-	
     cb_ax = fig.add_axes([0.15, 0.07, 0.7, 0.04])
-
     cbar = plt.colorbar(map, cax=cb_ax, spacing = 'uniform', extend='both', orientation='horizontal', fraction=0.046, pad=0.06)
     cbar.ax.tick_params(labelsize=18)
     cbar.ax.set_xlabel(r"$\Delta$"+ds1[var].units, fontsize=18)
@@ -110,8 +128,6 @@ for var, extent in zip(variables, colorbar_extents):
     elif 0.004 <= lev_extent < 0.04:
         cbar.ax.xaxis.set_major_formatter(StrMethodFormatter('{x:,.3f}')) # Three decimal places
     
-    #plt.savefig(wpath+"pdf/"+var+"_"+case1+"_"+case2+"eqbar.pdf", bbox_inches='tight')
-   # plt.savefig(wpath+"png/"+var+"_"+case1+"_"+case2+"eqbar.png", bbox_inches='tight')
     plt.savefig(wpath+"pdf/"+var+"_"+case1+"_"+case2+".pdf", bbox_inches='tight')
     plt.savefig(wpath+"png/"+var+"_"+case1+"_"+case2+".png", bbox_inches='tight')
 

@@ -15,18 +15,22 @@ import functions
 rpath="/projects/NS9600K/astridbg/data/model/noresm_postprocessed/"
 wpath="/projects/NS9600K/astridbg/INP-atm-present/figures/model/diff_height/"
 
+
 # Default cases----------------
 #case1 = "def_20210126"; case1nm = "CAM6"
-case1 = "meyers92_20220210"; case1nm = "M92"
-#case1 = "andenes21_20220222"; case1nm = "A21"
-#case1 = "M92_20240522"; case1nm = "M92"
+#case1 = "meyers92_20220210"; case1nm = "M92"
+#case1 = "M92_20240612"; case1nm = "M92"
+#case1 = "M92_20241122"; case1nm = "M92"
+#case1 = "A21_20241125"; case1nm = "A21"
+case1 = "noresm2_3_slf_output_A21_20250603"; case1nm = "A21"
+
 # Modified cases---------------
-#case2 = "meyers92_20220210"; case2nm = "M92"
-case2 = "andenes21_20220222"; case2nm = "A21"
-#case2 = "andenes21_20240322"; case2nm = "A21_nohet"
-#case2 = "andenes21_20240322_biggsoff"; case2nm = "A21_nobigg"
-#case2 = "A21_20240522"; case2nm="A21"
-#case2 = "M92_20240522"; case2nm = "M92"
+#case2 = "meyers92_20220210"; case2nm = "CAM5"
+#case2 = "andenes21_20220222"; case2nm = "A21"
+#case2 = "A21_20240612"; case2nm = "A21"
+#case2 = "A21_20241125"; case2nm = "A21"
+#case2 = "NorESM2_3_slf_output_20250421"; case2nm = "NorESM2.3"
+case2 = "noresm2_3_slf_output_NoINPs_20250604"; case2nm = "NoINPs"
 #------------------------------	
 date1 = "2007-04-15_2010-03-15"
 date2 = "2007-04-15_2010-03-15"
@@ -35,7 +39,7 @@ date2 = "2007-04-15_2010-03-15"
 #------------------------------
 # Add open ocean mask
 #------------------------------
-ocean_mask = False
+ocean_mask = True
 if ocean_mask:
     ds_ocn = xr.open_dataset(rpath+"OCNFRAC"+"_"+case2+"_"+date2+".nc")
     open_sea = ds_ocn > 0.85
@@ -49,7 +53,7 @@ if ocean_mask:
 
 var_level = 850
 concentrations = ["NIMEY", "AWNICC", "AWNI", "NIMEYCC", "NIMEYCLD", "AWNICLD", "AWNINONIMEY", "NUMICE"]
-variables = [["FREQI", "NUMICE"]]
+variables = [["NUMICE", "NSACWIO"]]
 
 #------------------------------
 # Titles
@@ -59,9 +63,9 @@ variables = [["FREQI", "NUMICE"]]
 #var2_name = "Ice cloud fractional occurence"
 #map_title="Relative change in \n ice cloud fractional occurence \n at 859 hPa \n"
 
-var1_name = "Cold cloud fractional occurence"
-var2_name = "Grid-box averaged \n cloud ice number conc. (1/kg)"
-map_title="Relative change in \n cloud ice number conc. \n at 859 hPa"
+var1_name = "Grid-box averaged \n cloud ice number conc. (1/kg)"
+var2_name = "SIP rate. (1/kg/s)"
+map_title="Relative change in \n SIP rate \n at 859 hPa"
 
 
 for var in variables:
@@ -94,7 +98,7 @@ for var in variables:
 
       lev_extent = round(max(abs(np.nanmin(reldiff.sel(lat=slice(66.5,90)).values)), 
                               abs(np.nanmax(reldiff.sel(lat=slice(66.5,90)).values))))
-      lev_extent = 50
+      lev_extent = 1
       #lev_min = np.nanmin(reldiff.sel(lat=slice(66.5,90)).values)
       #lev_max = np.nanmax(reldiff.sel(lat=slice(66.5,90)).values)                 
       #lev_min = -50
